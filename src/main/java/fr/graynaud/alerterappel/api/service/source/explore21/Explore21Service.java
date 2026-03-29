@@ -72,12 +72,12 @@ public abstract class Explore21Service<D extends Explore21Source> {
         try (FileChannel channel = FileChannel.open(this.lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
              FileLock lock = channel.tryLock()) {
             if (lock == null) {
-                logger.info("Skipping checkNewData for {} — another instance holds the lock", this.sourceName);
+                this.logger.info("Skipping checkNewData for {} — another instance holds the lock", this.sourceName);
                 return;
             }
             doCheckNewData();
         } catch (IOException e) {
-            logger.error("Failed to acquire lock for {}", this.sourceName, e);
+            this.logger.error("Failed to acquire lock for {}", this.sourceName, e);
         }
     }
 
@@ -89,13 +89,13 @@ public abstract class Explore21Service<D extends Explore21Source> {
             Explore21Response<?> response = fetchLatestSince(lastDate);
 
             if (response != null && response.totalCount() != null && response.totalCount() > 0) {
-                logger.info("New data for {}: {} record(s) since {}", this.sourceName, response.totalCount(), lastDate);
+                this.logger.info("New data for {}: {} record(s) since {}", this.sourceName, response.totalCount(), lastDate);
                 handleNewData(lastDate);
             } else {
-                logger.info("No new data for {} since {}", this.sourceName, lastDate);
+                this.logger.info("No new data for {} since {}", this.sourceName, lastDate);
             }
         } catch (Exception e) {
-            logger.error("Error while checking new data for {}", this.sourceName, e);
+            this.logger.error("Error while checking new data for {}", this.sourceName, e);
         }
     }
 
