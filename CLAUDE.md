@@ -28,6 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **`this.` on fields**: Always prefix instance field access with `this.` (e.g. `this.sourceName`, `this.dataPath`).
 - **`this.` on methods**: Do NOT use `this.` when calling instance methods (e.g. `checkNewData()`, not `this.checkNewData()`).
+- **No `var`**: Never use `var`. Always declare explicit types (e.g. `AlertProduct product = new AlertProduct(...)`, not `var product = new AlertProduct(...)`).
 
 ## Architecture
 

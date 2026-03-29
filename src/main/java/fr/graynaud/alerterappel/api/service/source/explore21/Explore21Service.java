@@ -2,6 +2,16 @@ package fr.graynaud.alerterappel.api.service.source.explore21;
 
 import fr.graynaud.alerterappel.api.config.properties.DataProperties;
 import fr.graynaud.alerterappel.api.config.properties.Explore21Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -13,14 +23,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.web.client.RestClient;
-import tools.jackson.databind.json.JsonMapper;
 
 public abstract class Explore21Service<D extends Explore21Source> {
 
@@ -48,13 +50,13 @@ public abstract class Explore21Service<D extends Explore21Source> {
 
     protected final Class<D> dataClass;
 
-    private final String dateField;
+    protected final String dateField;
 
     protected Explore21Service(RestClient.Builder restClientBuilder, Explore21Properties properties, DataProperties dataProperties,
                                JsonMapper jsonMapper, TaskScheduler taskScheduler, String sourceName, Class<D> dataClass, String dateField) throws IOException {
         this.updateClient = properties.restClientBuilder(restClientBuilder)
                                       .requestInterceptor((request, body, execution) -> {
-                                          var response = execution.execute(request, body);
+                                          ClientHttpResponse response = execution.execute(request, body);
                                           logRateLimitHeaders(response.getHeaders());
                                           return response;
                                       })

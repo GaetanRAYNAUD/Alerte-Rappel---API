@@ -14,11 +14,13 @@ import tools.jackson.databind.json.JsonMapper;
 @Service
 public class RapexService extends Explore21Service<RapexData> {
 
+    public static final String SOURCE_NAME = "Rapex";
+
     private final RestClient getClient;
 
     public RapexService(RestClient.Builder restClientBuilder, RapexProperties properties, DataProperties dataProperties,
                         JsonMapper jsonMapper, TaskScheduler taskScheduler) throws IOException {
-        super(restClientBuilder, properties, dataProperties, jsonMapper, taskScheduler, "Rapex", RapexData.class, "modification_date");
+        super(restClientBuilder, properties, dataProperties, jsonMapper, taskScheduler, SOURCE_NAME, RapexData.class, "modification_date");
         this.getClient = restClientBuilder.clone().baseUrl(properties.getGetBaseUrl()).build();
     }
 

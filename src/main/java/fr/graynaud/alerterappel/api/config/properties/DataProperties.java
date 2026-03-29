@@ -19,6 +19,17 @@ public class DataProperties {
         this.path = Path.of(path).toAbsolutePath();
         Files.createDirectories(this.path);
         Files.createDirectories(getSourcePath());
+        getDataPath();
+    }
+
+    public Path getDataPath() throws IOException {
+        Path path = this.path.resolve("data.json");
+
+        if (!Files.exists(path)) {
+            Files.writeString(path, "[]");
+        }
+
+        return path;
     }
 
     public Path getSourcePath() {
