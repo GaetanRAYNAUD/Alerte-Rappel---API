@@ -1,0 +1,425 @@
+{
+    "id": 10098375,
+    "notificationType": {
+        "key": "directive.article.12.gpsd.article.22.regulation.31008.765",
+        "code": "A12",
+        "name": "ARTICLE_12"
+    },
+    "reference": "SR/00939/26",
+    "corrigendum": null,
+    "country": {
+        "key": "FR",
+        "propertyKey": "country.FR",
+        "name": "France",
+        "orderIndex": 78,
+        "euCountry": true,
+        "eeaCountry": true
+    },
+    "creationDate": "2026-03-25T10:27:13.353Z",
+    "publicationDate": "2026-03-27T09:51:33.719Z",
+    "modificationDate": "2026-03-27T09:51:34.743Z",
+    "isImmediatePublication": true,
+    "singlePublication": true,
+    "forInfo": false,
+    "product": {
+        "id": 10280280,
+        "productCategory": {
+            "key": "product.category.toys",
+            "name": "TOYS"
+        },
+        "professionalProduct": false,
+        "isCounterfeit": {
+            "key": "option.yes",
+            "name": "YES"
+        },
+        "nameSpecific": "20CM Disney peluche Mickey Mouse Minnie peluche jouet dessin animé",
+        "nameSpecificKnown": true,
+        "brandKnown": false,
+        "brands": [],
+        "name": null,
+        "typeModelKnown": true,
+        "batchNumberKnown": false,
+        "barcodeKnown": true,
+        "packageDescriptionKnown": true,
+        "versions": [
+            {
+                "id": 10280280,
+                "language": {
+                    "key": "FR",
+                    "name": "français"
+                },
+                "name": "Jouet souple",
+                "description": "Jouet doux en forme de personnage Minnie Mouse avec une ventouse. Produit vendu en ligne, notamment via AliExpress (identifiant unique: 1005004504058340)",
+                "packageDescription": "Sac en plastique.",
+                "productCategoryOther": null
+            }
+        ],
+        "barcodes": [
+            {
+                "barcode": "760258386219"
+            }
+        ],
+        "batchNumbers": [],
+        "modelTypes": [
+            {
+                "modelType": "Dis-MLS-20cmminisize-Red"
+            }
+        ],
+        "description": null,
+        "packageDescription": null,
+        "productCategoryOther": null,
+        "photos": [
+            {
+                "id": 11001107,
+                "mainPicture": false,
+                "fileName": "p012003.png",
+                "path": null
+            },
+            {
+                "id": 11001108,
+                "mainPicture": true,
+                "fileName": "Peluche Minnie fid2025597.png",
+                "path": null
+            }
+        ]
+    },
+    "risk": {
+        "id": 10020348,
+        "riskType": [
+            {
+                "key": "riskType.choking",
+                "name": "CHOKING"
+            }
+        ],
+        "versions": [
+            {
+                "id": 10020348,
+                "language": {
+                    "key": "FR",
+                    "name": "français"
+                },
+                "riskDescription": "Le produit a de petites pièces (la ventouse) qui peuvent facilement se détacher. Un petit enfant peut le mettre dans la bouche et s'étouffer.",
+                "legalProvision": "Le produit n'est pas conforme aux exigences de la directive sur la sécurité des jouets ni à la norme européenne EN 71-1.",
+                "riskTypeOther": null
+            }
+        ]
+    },
+    "measureTaken": {
+        "id": 10020348,
+        "hasPublishedRecallOnline": {
+            "key": "option.no",
+            "name": "NO"
+        },
+        "measures": [
+            {
+                "id": 10595265,
+                "entryIntoForceDateKnown": true,
+                "entryIntoForceDate": "2026-01-27T00:00:00.000Z",
+                "measureDuration": null,
+                "measureScope": null,
+                "measureCategory": {
+                    "key": "measure.category.warning.consumers.of.risks",
+                    "name": "WARNING_CONSUMERS_OF_RISKS"
+                },
+                "measureType": {
+                    "key": "measure.type.voluntary",
+                    "name": "VOLUNTARY"
+                },
+                "measureVoluntaryEconomicOperator": {
+                    "key": "measure.operator.other",
+                    "name": "OTHER"
+                },
+                "measureVoluntaryAuthority": null,
+                "measureCompulsoryEconomicOperator": null,
+                "measureCompulsoryAuthority": null,
+                "versions": [
+                    {
+                        "id": 10595265,
+                        "language": {
+                            "key": "FR",
+                            "name": "français"
+                        },
+                        "measureCategoryOther": null
+                    }
+                ]
+            },
+            {
+                "id": 10595266,
+                "entryIntoForceDateKnown": true,
+                "entryIntoForceDate": "2026-01-15T00:00:00.000Z",
+                "measureDuration": null,
+                "measureScope": null,
+                "measureCategory": {
+                    "key": "measure.category.removal.from.online.marketplace",
+                    "name": "REMOVAL_FROM_ONLINE_MARKETPLACE"
+                },
+                "measureType": {
+                    "key": "measure.type.voluntary",
+                    "name": "VOLUNTARY"
+                },
+                "measureVoluntaryEconomicOperator": {
+                    "key": "measure.operator.other",
+                    "name": "OTHER"
+                },
+                "measureVoluntaryAuthority": null,
+                "measureCompulsoryEconomicOperator": null,
+                "measureCompulsoryAuthority": null,
+                "versions": [
+                    {
+                        "id": 10595266,
+                        "language": {
+                            "key": "FR",
+                            "name": "français"
+                        },
+                        "measureCategoryOther": null
+                    }
+                ]
+            }
+        ],
+        "companyRecalls": []
+    },
+    "traceability": {
+        "id": 10020348,
+        "countryOrigin": {
+            "key": "CN",
+            "propertyKey": "country.CN",
+            "name": "People's Republic of China",
+            "orderIndex": 47,
+            "euCountry": false,
+            "eeaCountry": false
+        },
+        "isSoldOnline": {
+            "key": "option.yes",
+            "name": "YES"
+        },
+        "onlineTrader": null
+    },
+    "reactingCountries": [],
+    "webReport": null,
+    "versions": [
+        {
+            "id": 10098375,
+            "language": {
+                "key": "BG",
+                "name": "български"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "CS",
+                "name": "čeština"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "DA",
+                "name": "dansk"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "DE",
+                "name": "deutsch"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "EL",
+                "name": "ελληνικά"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "EN",
+                "name": "english"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "ES",
+                "name": "español"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "ET",
+                "name": "eesti keel"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "FI",
+                "name": "suomi"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "FR",
+                "name": "français"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "HR",
+                "name": "hrvatski"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "HU",
+                "name": "magyar"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "IT",
+                "name": "italiano"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "LT",
+                "name": "lietuvių kalba"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "LV",
+                "name": "latviešu valoda"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "MT",
+                "name": "malti"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "NL",
+                "name": "nederlands"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "PL",
+                "name": "polski"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "PT",
+                "name": "português"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "RO",
+                "name": "română"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "SK",
+                "name": "slovenčina (slovenský jazyk)"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "SL",
+                "name": "slovenščina (slovenski jezik)"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "SV",
+                "name": "svenska"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "NO",
+                "name": "norsk"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "IS",
+                "name": "Íslenska "
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "UK",
+                "name": "українська"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "AR",
+                "name": "العربية"
+            },
+            "corrigendum": null
+        },
+        {
+            "id": 10098375,
+            "language": {
+                "key": "GA",
+                "name": "gaeilge"
+            },
+            "corrigendum": null
+        }
+    ]
+}

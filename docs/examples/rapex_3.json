@@ -1,0 +1,473 @@
+{
+	"id": 10097862,
+	"notificationType": {
+		"key": "directive.article.12.gpsd.article.22.regulation.31008.765",
+		"code": "A12",
+		"name": "ARTICLE_12"
+	},
+	"reference": "SR/00484/26",
+	"corrigendum": null,
+	"country": {
+		"key": "FR",
+		"propertyKey": "country.FR",
+		"name": "France",
+		"orderIndex": 78,
+		"euCountry": true,
+		"eeaCountry": true
+	},
+	"creationDate": "2026-02-09T08:40:55.875Z",
+	"publicationDate": "2026-02-10T11:00:28.766Z",
+	"modificationDate": "2026-02-16T10:43:13.857Z",
+	"isImmediatePublication": true,
+	"singlePublication": false,
+	"forInfo": false,
+	"product": {
+		"id": 10275398,
+		"productCategory": {
+			"key": "product.category.toys",
+			"name": "TOYS"
+		},
+		"professionalProduct": false,
+		"isCounterfeit": {
+			"key": "option.no",
+			"name": "NO"
+		},
+		"nameSpecific": "HAPPY LUTINS FARCEURS SAPERLI & POPETTE",
+		"nameSpecificKnown": true,
+		"brandKnown": true,
+		"brands": [
+			{
+				"brand": "JOURDAIN"
+			}
+		],
+		"name": null,
+		"typeModelKnown": true,
+		"batchNumberKnown": true,
+		"barcodeKnown": true,
+		"packageDescriptionKnown": true,
+		"versions": [
+			{
+				"id": 10275398,
+				"language": {
+					"key": "FR",
+					"name": "français"
+				},
+				"name": "Poupée",
+				"description": "Poupée en tissu rouge et blanc en forme d'elfe avec un visage en plastique.",
+				"packageDescription": "Support en carton.",
+				"productCategoryOther": null
+			}
+		],
+		"barcodes": [
+			{
+				"barcode": "3385533625584"
+			}
+		],
+		"batchNumbers": [
+			{
+				"batchNumber": "25-D0069"
+			}
+		],
+		"modelTypes": [
+			{
+				"modelType": "362558"
+			}
+		],
+		"description": null,
+		"packageDescription": null,
+		"productCategoryOther": null,
+		"photos": [
+			{
+				"id": 10996528,
+				"mainPicture": false,
+				"fileName": "4_IMG_0583_compressed.jpg",
+				"path": null
+			},
+			{
+				"id": 10996529,
+				"mainPicture": false,
+				"fileName": "5_IMG_0584_compressed.jpg",
+				"path": null
+			},
+			{
+				"id": 10996530,
+				"mainPicture": false,
+				"fileName": "6_IMG_0585_compressed.jpg",
+				"path": null
+			},
+			{
+				"id": 10996531,
+				"mainPicture": false,
+				"fileName": "8_IMG_0587_compressed.jpg",
+				"path": null
+			},
+			{
+				"id": 10996532,
+				"mainPicture": true,
+				"fileName": "Lutin farceur Saperli popette JOURDAIN fid2026023.png",
+				"path": null
+			}
+		]
+	},
+	"risk": {
+		"id": 10019860,
+		"riskType": [
+			{
+				"key": "riskType.chemical",
+				"name": "CHEMICAL"
+			}
+		],
+		"versions": [
+			{
+				"id": 10019860,
+				"language": {
+					"key": "FR",
+					"name": "français"
+				},
+				"riskDescription": "La migration du chrome VI du jouet est trop élevée (valeur mesurée jusqu'à 0,33 mg/kg). Le chrome (VI) est sensibilisant, peut déclencher des réactions allergiques et peut causer le cancer.",
+				"legalProvision": "Le produit n'est pas conforme aux exigences de la directive sur la sécurité des jouets ni à la norme européenne EN 71-3. ",
+				"riskTypeOther": null
+			}
+		]
+	},
+	"measureTaken": {
+		"id": 10019860,
+		"hasPublishedRecallOnline": {
+			"key": "option.yes",
+			"name": "YES"
+		},
+		"measures": [
+			{
+				"id": 10582335,
+				"entryIntoForceDateKnown": true,
+				"entryIntoForceDate": "2026-02-04T00:00:00.000Z",
+				"measureDuration": null,
+				"measureScope": null,
+				"measureCategory": {
+					"key": "measure.category.withdrawal.of.product.from.market",
+					"name": "PRODUCT_WITHDRAWAL_FROM_MARKET"
+				},
+				"measureType": {
+					"key": "measure.type.voluntary",
+					"name": "VOLUNTARY"
+				},
+				"measureVoluntaryEconomicOperator": {
+					"key": "measure.operator.manufacturer",
+					"name": "MANUFACTURER"
+				},
+				"measureVoluntaryAuthority": null,
+				"measureCompulsoryEconomicOperator": null,
+				"measureCompulsoryAuthority": null,
+				"versions": [
+					{
+						"id": 10582335,
+						"language": {
+							"key": "FR",
+							"name": "français"
+						},
+						"measureCategoryOther": null
+					}
+				]
+			},
+			{
+				"id": 10582334,
+				"entryIntoForceDateKnown": true,
+				"entryIntoForceDate": "2026-02-04T00:00:00.000Z",
+				"measureDuration": null,
+				"measureScope": null,
+				"measureCategory": {
+					"key": "measure.category.recall.of.product.from.consumers",
+					"name": "PRODUCT_RECALL_FROM_CONSUMERS"
+				},
+				"measureType": {
+					"key": "measure.type.voluntary",
+					"name": "VOLUNTARY"
+				},
+				"measureVoluntaryEconomicOperator": {
+					"key": "measure.operator.manufacturer",
+					"name": "MANUFACTURER"
+				},
+				"measureVoluntaryAuthority": null,
+				"measureCompulsoryEconomicOperator": null,
+				"measureCompulsoryAuthority": null,
+				"versions": [
+					{
+						"id": 10582334,
+						"language": {
+							"key": "FR",
+							"name": "français"
+						},
+						"measureCategoryOther": null
+					}
+				]
+			}
+		],
+		"companyRecalls": [
+			{
+				"id": 10040743,
+				"link": "http://rappel.conso.gouv.fr/fiche-rappel/2026-02-0062",
+				"language": {
+					"key": "FR",
+					"name": "français"
+				}
+			}
+		]
+	},
+	"traceability": {
+		"id": 10019860,
+		"countryOrigin": {
+			"key": "CN",
+			"propertyKey": "country.CN",
+			"name": "People's Republic of China",
+			"orderIndex": 47,
+			"euCountry": false,
+			"eeaCountry": false
+		},
+		"isSoldOnline": {
+			"key": "option.unknown",
+			"name": "UNKNOWN"
+		},
+		"onlineTrader": null
+	},
+	"reactingCountries": [],
+	"webReport": {
+		"id": 10000292,
+		"code": "Report-2026-6",
+		"internalComments": null,
+		"corrigendum": "Notification SR/00507/26: at the request of the notifying authority the notification has been updated with additional information on the product's risk description.\nProduct in notification FR/01401/26 marked as counterfeit.\nNotification SR/00481/26: at the request of the notifying authority the notification has been updated with additional information on the traceability and measures taken.\nNotification SR/00485/26: at the request of the notifying authority the notification has been updated with additional information on the traceability and measures taken.",
+		"publicationDate": "2026-02-12T23:00:00.000+00:00",
+		"lastPublicationDate": null,
+		"notifications": null,
+		"highlighted": false,
+		"status": {
+			"key": "pds.status.published",
+			"name": "PUBLISHED"
+		}
+	},
+	"versions": [
+		{
+			"id": 10097862,
+			"language": {
+				"key": "BG",
+				"name": "български"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "CS",
+				"name": "čeština"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "DA",
+				"name": "dansk"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "DE",
+				"name": "deutsch"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "EL",
+				"name": "ελληνικά"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "EN",
+				"name": "english"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "ES",
+				"name": "español"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "ET",
+				"name": "eesti keel"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "FI",
+				"name": "suomi"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "FR",
+				"name": "français"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "HR",
+				"name": "hrvatski"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "HU",
+				"name": "magyar"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "IT",
+				"name": "italiano"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "LT",
+				"name": "lietuvių kalba"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "LV",
+				"name": "latviešu valoda"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "MT",
+				"name": "malti"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "NL",
+				"name": "nederlands"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "PL",
+				"name": "polski"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "PT",
+				"name": "português"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "RO",
+				"name": "română"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "SK",
+				"name": "slovenčina (slovenský jazyk)"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "SL",
+				"name": "slovenščina (slovenski jezik)"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "SV",
+				"name": "svenska"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "NO",
+				"name": "norsk"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "IS",
+				"name": "Íslenska "
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "UK",
+				"name": "українська"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "AR",
+				"name": "العربية"
+			},
+			"corrigendum": null
+		},
+		{
+			"id": 10097862,
+			"language": {
+				"key": "GA",
+				"name": "gaeilge"
+			},
+			"corrigendum": null
+		}
+	]
+}

@@ -1,0 +1,546 @@
+{
+	"id": 10097946,
+	"notificationType": {
+		"key": "directive.article.12.gpsd.article.22.regulation.31008.765",
+		"code": "A12",
+		"name": "ARTICLE_12"
+	},
+	"reference": "SR/00581/26",
+	"corrigendum": "Case SR/00581/26 at the request of the authority have been updated with additional information.",
+	"country": {
+		"key": "FR",
+		"propertyKey": "country.FR",
+		"name": "France",
+		"orderIndex": 78,
+		"euCountry": true,
+		"eeaCountry": true
+	},
+	"creationDate": "2026-02-17T13:20:24.491Z",
+	"publicationDate": "2026-03-04T11:09:42.985Z",
+	"modificationDate": "2026-03-23T15:51:34.635Z",
+	"isImmediatePublication": true,
+	"singlePublication": false,
+	"forInfo": false,
+	"product": {
+		"id": 10276424,
+		"productCategory": {
+			"key": "product.category.motor.vehicles",
+			"name": "MOTOR_VEHICLES"
+		},
+		"professionalProduct": false,
+		"isCounterfeit": {
+			"key": "option.no",
+			"name": "NO"
+		},
+		"nameSpecific": "Série 5 (E39) - X5 (E53)",
+		"nameSpecificKnown": true,
+		"brandKnown": true,
+		"brands": [
+			{
+				"brand": "Bmw"
+			}
+		],
+		"name": null,
+		"typeModelKnown": true,
+		"batchNumberKnown": true,
+		"barcodeKnown": true,
+		"packageDescriptionKnown": false,
+		"versions": [
+			{
+				"id": 10276424,
+				"language": {
+					"key": "FR",
+					"name": "français"
+				},
+				"name": "Voiture particulière",
+				"description": "Voiture de tourisme, équipée d'airbags Takata.",
+				"packageDescription": null,
+				"productCategoryOther": null
+			}
+		],
+		"barcodes": [
+			{
+				"barcode": "0032800300"
+			}
+		],
+		"batchNumbers": [
+			{
+				"batchNumber": "09.11.1998 - 19.12.2003"
+			}
+		],
+		"modelTypes": [
+			{
+				"modelType": "e1*98/14*0028*, e9*98/14*0022*, e1*98/14*0153*, e1*2001/116*0153*"
+			}
+		],
+		"description": null,
+		"packageDescription": null,
+		"productCategoryOther": null,
+		"photos": [
+			{
+				"id": 10997976,
+				"mainPicture": true,
+				"fileName": "a.png",
+				"path": null
+			},
+			{
+				"id": 10997977,
+				"mainPicture": false,
+				"fileName": "b.png",
+				"path": null
+			}
+		]
+	},
+	"risk": {
+		"id": 10019956,
+		"riskType": [
+			{
+				"key": "riskType.injuries",
+				"name": "INJURIES"
+			}
+		],
+		"versions": [
+			{
+				"id": 10019956,
+				"language": {
+					"key": "FR",
+					"name": "français"
+				},
+				"riskDescription": "Les substances chimiques présentes dans les gonfleurs des airbags TAKATA PSDI4 peuvent se détériorer avec le temps, en particulier dans les climats chauds et humides. Cela pourrait provoquer la rupture de l'airbag avec trop de force en cas d'accident, ce qui pourrait entraîner des blessures graves, voire mortelles, dans le pire des cas.",
+				"legalProvision": "Le produit n’est pas conforme au règlement relatif à la réception et à la surveillance du marché des véhicules à moteur et de leurs remorques, ainsi que des systèmes, composants et entités techniques distinctes destinés à ces véhicules.",
+				"riskTypeOther": null
+			}
+		]
+	},
+	"measureTaken": {
+		"id": 10019956,
+		"hasPublishedRecallOnline": {
+			"key": "option.no",
+			"name": "NO"
+		},
+		"measures": [
+			{
+				"id": 10584959,
+				"entryIntoForceDateKnown": true,
+				"entryIntoForceDate": "2025-10-31T00:00:00.000Z",
+				"measureDuration": null,
+				"measureScope": null,
+				"measureCategory": {
+					"key": "measure.category.recall.of.product.from.consumers",
+					"name": "PRODUCT_RECALL_FROM_CONSUMERS"
+				},
+				"measureType": {
+					"key": "measure.type.voluntary",
+					"name": "VOLUNTARY"
+				},
+				"measureVoluntaryEconomicOperator": {
+					"key": "measure.operator.manufacturer",
+					"name": "MANUFACTURER"
+				},
+				"measureVoluntaryAuthority": null,
+				"measureCompulsoryEconomicOperator": null,
+				"measureCompulsoryAuthority": null,
+				"versions": [
+					{
+						"id": 10584959,
+						"language": {
+							"key": "FR",
+							"name": "français"
+						},
+						"measureCategoryOther": null
+					}
+				]
+			},
+			{
+				"id": 10584958,
+				"entryIntoForceDateKnown": true,
+				"entryIntoForceDate": "2025-11-19T00:00:00.000Z",
+				"measureDuration": null,
+				"measureScope": null,
+				"measureCategory": {
+					"key": "measure.category.other",
+					"name": "OTHER"
+				},
+				"measureType": {
+					"key": "measure.type.voluntary",
+					"name": "VOLUNTARY"
+				},
+				"measureVoluntaryEconomicOperator": {
+					"key": "measure.operator.manufacturer",
+					"name": "MANUFACTURER"
+				},
+				"measureVoluntaryAuthority": null,
+				"measureCompulsoryEconomicOperator": null,
+				"measureCompulsoryAuthority": null,
+				"versions": [
+					{
+						"id": 10584958,
+						"language": {
+							"key": "FR",
+							"name": "français"
+						},
+						"measureCategoryOther": "Demande d'arrêt de la conduite"
+					}
+				]
+			}
+		],
+		"companyRecalls": []
+	},
+	"traceability": {
+		"id": 10019956,
+		"countryOrigin": {
+			"key": "DE",
+			"propertyKey": "country.DE",
+			"name": "Germany",
+			"orderIndex": 85,
+			"euCountry": true,
+			"eeaCountry": true
+		},
+		"isSoldOnline": {
+			"key": "option.no",
+			"name": "NO"
+		},
+		"onlineTrader": null
+	},
+	"reactingCountries": [
+		{
+			"id": 10097946,
+			"country": {
+				"key": "BG",
+				"propertyKey": "country.BG",
+				"name": "Bulgaria",
+				"orderIndex": 36,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "DE",
+				"propertyKey": "country.DE",
+				"name": "Germany",
+				"orderIndex": 85,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "HR",
+				"propertyKey": "country.HR",
+				"name": "Croatia",
+				"orderIndex": 57,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "HU",
+				"propertyKey": "country.HU",
+				"name": "Hungary",
+				"orderIndex": 103,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "LU",
+				"propertyKey": "country.LU",
+				"name": "Luxembourg",
+				"orderIndex": 132,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "PT",
+				"propertyKey": "country.PT",
+				"name": "Portugal",
+				"orderIndex": 180,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "SE",
+				"propertyKey": "country.SE",
+				"name": "Sweden",
+				"orderIndex": 216,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "SI",
+				"propertyKey": "country.SI",
+				"name": "Slovenia",
+				"orderIndex": 205,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		},
+		{
+			"id": 10097946,
+			"country": {
+				"key": "SK",
+				"propertyKey": "country.SK",
+				"name": "Slovakia",
+				"orderIndex": 204,
+				"euCountry": true,
+				"eeaCountry": true
+			}
+		}
+	],
+	"webReport": {
+		"id": 10000294,
+		"code": "Report-2026-8",
+		"internalComments": null,
+		"corrigendum": null,
+		"publicationDate": "2026-02-26T23:00:00.000+00:00",
+		"lastPublicationDate": null,
+		"notifications": null,
+		"highlighted": false,
+		"status": {
+			"key": "pds.status.published",
+			"name": "PUBLISHED"
+		}
+	},
+	"versions": [
+		{
+			"id": 10097946,
+			"language": {
+				"key": "BG",
+				"name": "български"
+			},
+			"corrigendum": "Дело SR/00581/26 по искане на органа е актуализирано с допълнителна информация."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "CS",
+				"name": "čeština"
+			},
+			"corrigendum": "Věc SR/00581/26 byla na žádost orgánu aktualizována o další informace."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "DA",
+				"name": "dansk"
+			},
+			"corrigendum": "Sag SR/00581/26 er efter anmodning fra myndigheden blevet ajourført med yderligere oplysninger."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "DE",
+				"name": "deutsch"
+			},
+			"corrigendum": "Die Sache SR/00581/26 wurde auf Ersuchen der Behörde mit zusätzlichen Informationen aktualisiert."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "EL",
+				"name": "ελληνικά"
+			},
+			"corrigendum": "Η υπόθεση SR/00581/26, κατόπιν αιτήματος της αρχής, επικαιροποιήθηκε με πρόσθετες πληροφορίες."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "EN",
+				"name": "english"
+			},
+			"corrigendum": "Case SR/00581/26 at the request of the authority have been updated with additional information."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "ES",
+				"name": "español"
+			},
+			"corrigendum": "El asunto SR/00581/26, a petición de la autoridad, se ha actualizado con información adicional."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "ET",
+				"name": "eesti keel"
+			},
+			"corrigendum": "Asutuse taotlusel on juhtumit SR/00581/26 ajakohastatud lisateabega."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "FI",
+				"name": "suomi"
+			},
+			"corrigendum": "Asia SR/00581/26 on saatettu ajan tasalle viranomaisen pyynnöstä lisätiedoin."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "FR",
+				"name": "français"
+			},
+			"corrigendum": "L'affaire SR/00581/26 à la demande de l'autorité a été mise à jour avec des informations supplémentaires."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "HR",
+				"name": "hrvatski"
+			},
+			"corrigendum": "Predmet SR/00581/26 na zahtjev nadležnog tijela ažuriran je dodatnim informacijama."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "HU",
+				"name": "magyar"
+			},
+			"corrigendum": "Az SR/00581/26. sz. ügyet a hatóság kérésére további információkkal frissítették."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "IT",
+				"name": "italiano"
+			},
+			"corrigendum": "Il caso SR/00581/26 su richiesta dell'autorità è stato aggiornato con ulteriori informazioni."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "LT",
+				"name": "lietuvių kalba"
+			},
+			"corrigendum": "Institucijos prašymu byla SR/00581/26 buvo atnaujinta pateikiant papildomą informaciją."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "LV",
+				"name": "latviešu valoda"
+			},
+			"corrigendum": "Lieta SR/00581/26 pēc iestādes pieprasījuma ir atjaunināta ar papildu informāciju."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "MT",
+				"name": "malti"
+			},
+			"corrigendum": "Il-Każ SR/00581/26 fuq talba tal-awtorità ġie aġġornat b’informazzjoni addizzjonali."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "NL",
+				"name": "nederlands"
+			},
+			"corrigendum": "Zaak SR/00581/26 is op verzoek van de autoriteit bijgewerkt met aanvullende informatie."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "PL",
+				"name": "polski"
+			},
+			"corrigendum": "Sprawa SR/00581/26 na wniosek organu została zaktualizowana o dodatkowe informacje."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "PT",
+				"name": "português"
+			},
+			"corrigendum": "O processo SR/00581/26, a pedido da autoridade, foi atualizado com informações adicionais."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "RO",
+				"name": "română"
+			},
+			"corrigendum": "Cazul SR/00581/26, la cererea autorității, a fost actualizat cu informații suplimentare."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "SK",
+				"name": "slovenčina (slovenský jazyk)"
+			},
+			"corrigendum": "Vec SR/00581/26 bola na žiadosť orgánu aktualizovaná o dodatočné informácie."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "SL",
+				"name": "slovenščina (slovenski jezik)"
+			},
+			"corrigendum": "Zadeva SR/00581/26 je bila na zahtevo organa posodobljena z dodatnimi informacijami."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "SV",
+				"name": "svenska"
+			},
+			"corrigendum": "Ärende SR/00581/26 har på myndighetens begäran uppdaterats med ytterligare information."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "NO",
+				"name": "norsk"
+			},
+			"corrigendum": "Sak SR/00581/26 på anmodning fra myndigheten er oppdatert med tilleggsopplysninger."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "IS",
+				"name": "Íslenska "
+			},
+			"corrigendum": "Mál SR/00581/26, að beiðni yfirvaldsins, hefur verið uppfært með viðbótarupplýsingum."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "UK",
+				"name": "українська"
+			},
+			"corrigendum": "Справа SR/00581/26 на вимогу органу була оновлена додатковою інформацією."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "AR",
+				"name": "العربية"
+			},
+			"corrigendum": "وقد تم تحديث القضية SR/00581/26 بناء على طلب السلطة بمعلومات إضافية."
+		},
+		{
+			"id": 10097946,
+			"language": {
+				"key": "GA",
+				"name": "gaeilge"
+			},
+			"corrigendum": "Tugadh cás SR/00581/26 cothrom le dáta le faisnéis bhreise arna iarraidh sin don údarás."
+		}
+	]
+}

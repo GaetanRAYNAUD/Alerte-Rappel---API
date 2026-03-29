@@ -1,0 +1,282 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Unified Product Recall",
+  "description": "Schéma unifié pour les rappels de produits issus de Safety Gate (RAPEX) et RappelConso (gouvernement français)",
+  "type": "object",
+  "properties": {
+    "_metadata": {
+      "type": "object",
+      "description": "Métadonnées techniques sur l'enregistrement",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "description": "Liste des sources ayant contribué à cet enregistrement",
+          "items": {
+            "type": "object",
+            "properties": {
+              "origin": {
+                "type": "string",
+                "enum": ["rapex", "rappelconso"],
+                "description": "Identifiant de la source"
+              },
+              "url": {
+                "type": ["string", "null"],
+                "format": "uri",
+                "description": "URL vers la fiche source originale"
+              },
+              "source_id": {
+                "type": ["string", "integer", "null"],
+                "description": "Identifiant interne à la source (ex: id RappelConso = 49410, RAPEX = 10098230)"
+              },
+              "import_date": {
+                "type": ["string", "null"],
+                "format": "date-time",
+                "description": "Date à laquelle l'enregistrement a été importé depuis cette source"
+              }
+            },
+            "required": ["origin"]
+          }
+        },
+        "rappelconso_guid": {
+          "type": ["string", "null"],
+          "description": "GUID unique RappelConso (rappel_guid)"
+        }
+      }
+    },
+    "alert_number": {
+      "type": "string",
+      "description": "Numéro d'alerte (clé de jointure). Normaliser en majuscules. (RAPEX: alert_number, RappelConso: numero_fiche)",
+      "examples": ["SR/00842/26"]
+    },
+    "publication_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Date de publication de l'alerte (RAPEX: alert_date, RappelConso: date_publication)"
+    },
+    "risk_level": {
+      "type": ["string", "null"],
+      "description": "Niveau de risque (source: RAPEX alert_level)",
+      "examples": ["Risque grave"]
+    },
+    "risks": {
+      "type": ["array", "null"],
+      "description": "Types de risques identifiés (RAPEX: alert_type, RappelConso: risques_encourus). Normalisé en tableau.",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["Incendie"]]
+    },
+    "risk_description": {
+      "type": ["string", "null"],
+      "description": "Description détaillée du risque (RAPEX: alert_description, RappelConso: motif_rappel)"
+    },
+    "supplementary_risk_description": {
+      "type": ["string", "null"],
+      "description": "Informations complémentaires sur le risque (source: RappelConso)"
+    },
+    "legal_basis": {
+      "type": ["string", "null"],
+      "description": "Disposition légale applicable (RAPEX: risk_legal_provision)"
+    },
+    "technical_defect": {
+      "type": ["string", "null"],
+      "description": "Description du défaut technique (source: RAPEX technical_defect)"
+    },
+    "product": {
+      "type": "object",
+      "description": "Informations sur le produit concerné",
+      "properties": {
+        "name": {
+          "type": ["string", "null"],
+          "description": "Nom du produit (RAPEX: product_name, RappelConso: libelle)",
+          "examples": ["Grande Panda, 600"]
+        },
+        "description": {
+          "type": ["string", "null"],
+          "description": "Description détaillée du produit (RAPEX: product_description, RappelConso: modeles_ou_references)"
+        },
+        "brand": {
+          "type": ["string", "null"],
+          "description": "Marque du produit (RAPEX: product_brand, RappelConso: marque_produit). Normaliser la casse.",
+          "examples": ["Fiat Professional"]
+        },
+        "product_type": {
+          "type": ["string", "null"],
+          "description": "Type de produit (source: RAPEX product_type)",
+          "examples": ["Voiture particulière"]
+        },
+        "family": {
+          "type": ["string", "null"],
+          "description": "Sous-catégorie du produit (source: RappelConso categorie_produit)",
+          "examples": ["bébés-enfants (hors alimentaire)"]
+        },
+        "category": {
+          "type": ["string", "null"],
+          "description": "Catégorie du produit (RAPEX: product_category, RappelConso: sous_categorie_produit)"
+        },
+        "oecd_category": {
+          "type": ["string", "null"],
+          "description": "Catégorie selon la nomenclature OCDE (source: RAPEX oecd_portal_category)",
+          "examples": ["77000000 - Automobile"]
+        },
+        "model_references": {
+          "type": ["string", "null"],
+          "description": "Références de modèles / homologations type-approval (RAPEX: product_model_type, RappelConso: informations_complementaires)"
+        },
+        "counterfeit": {
+          "type": ["boolean", "null"],
+          "description": "Le produit est-il une contrefaçon ? (source: RAPEX product_counterfeit, convertir 'Oui'/'Non' en booléen)"
+        },
+        "barcode": {
+          "type": ["string", "null"],
+          "description": "Code-barres du produit (source: RAPEX product_barcode)"
+        },
+        "batch_number": {
+          "type": ["string", "null"],
+          "description": "Numéro de lot (source: RAPEX product_batch_number)"
+        },
+        "production_dates": {
+          "type": ["string", "null"],
+          "description": "Dates ou plages de production (RAPEX: product_production_date (seulement pour les voitures), RappelConso: identification_produits[0])"
+        },
+        "packaging": {
+          "type": ["string", "null"],
+          "description": "Description de l'emballage (source: RAPEX product_packaging_description, RappelConso: conditionnements)"
+        }
+      }
+    },
+    "commercialization": {
+      "type": "object",
+      "description": "Informations sur la commercialisation",
+      "properties": {
+        "origin_country": {
+          "type": ["string", "null"],
+          "description": "Pays d'origine du produit (source: RAPEX product_country)"
+        },
+        "alert_country": {
+          "type": ["string", "null"],
+          "description": "Pays ayant émis l'alerte (source: RAPEX alert_country, RappelConso: France)"
+        },
+        "affected_areas": {
+          "type": ["array"],
+          "description": "Autres pays concernés par l'alerte (source: RAPEX alert_other_countries, alert_country, RappelConso: zone_geographique_de_vente)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "marketing_start_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Date de début de commercialisation (source: RappelConso)"
+        },
+        "marketing_end_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Date de fin de commercialisation (source: RappelConso)"
+        },
+        "distributors": {
+          "type": ["string", "null"],
+          "description": "Liste des distributeurs concernés (source: RappelConso)"
+        }
+      }
+    },
+    "measures": {
+      "type": "object",
+      "description": "Mesures prises et consignes",
+      "properties": {
+        "measures_taken": {
+          "type": ["array", "null"],
+          "description": "Mesures ordonnées (source: RAPEX measures_country)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recall_code": {
+          "type": ["string", "null"],
+          "description": "Code de rappel du fabricant (source: RAPEX product_recall_code)",
+          "examples": ["F60D"]
+        },
+        "consumer_actions": {
+          "type": ["string", "null"],
+          "description": "Conduites à tenir par le consommateur (source: RappelConso)"
+        },
+        "compensation_terms": {
+          "type": ["string", "null"],
+          "description": "Modalités de compensation proposées (source: RappelConso)"
+        },
+        "procedure_end_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Date de fin de la procédure de rappel (source: RappelConso)"
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "description": "Informations sanitaires (principalement pour les produits alimentaires)",
+      "properties": {
+        "health_recommendations": {
+          "type": ["string", "null"],
+          "description": "Préconisations sanitaires (source: RappelConso)"
+        },
+        "storage_temperature": {
+          "type": ["string", "null"],
+          "description": "Température de conservation (source: RappelConso)"
+        },
+        "health_mark": {
+          "type": ["string", "null"],
+          "description": "Marque de salubrité (source: RappelConso)"
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "description": "Informations de contact",
+      "properties": {
+        "contact_number": {
+          "type": ["string", "null"],
+          "description": "Numéro de contact (source: RappelConso)"
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "description": "Images et documents associés",
+      "properties": {
+        "main_image": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "URL de l'image principale (RAPEX: product_image, RappelConso: liens_vers_les_images)"
+        },
+        "additional_images": {
+          "type": ["array", "null"],
+          "description": "URLs d'images supplémentaires (source: RAPEX product_other_images)",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "pdf_poster_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Lien vers l'affichette PDF (source: RappelConso lien_vers_affichette_pdf)"
+        },
+        "product_list_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Lien vers la liste des produits (source: RappelConso)"
+        },
+        "distributor_list_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Lien vers la liste des distributeurs (source: RappelConso)"
+        }
+      }
+    },
+    "additional_information": {
+      "type": ["string", "null"],
+      "description": "Informations complémentaires publiques (source: RappelConso informations_complementaires_publiques)"
+    }
+  },
+  "required": ["alert_number", "publication_date", "_metadata"]
+}
