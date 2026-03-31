@@ -11,7 +11,6 @@ import java.util.List;
  * @param alertNumber                  Numéro d'alerte commun aux deux sources (clé de jointure). Toujours normalisé en majuscules.
  *                                     Exemples : {@code SR/00842/26}, {@code SR/00939/26}.
  *                                     RAPEX : {@code reference}, RappelConso : {@code numero_fiche}
- * @param versionNumber                Numéro de version de la fiche (source : RappelConso {@code numero_version})
  * @param publicationDate              Date de publication officielle de l'alerte.
  *                                     RAPEX : {@code publicationDate}, RappelConso : {@code date_publication}
  * @param risks                        Types de risques identifiés, normalisés en tableau de clés.
@@ -29,7 +28,6 @@ import java.util.List;
 public record Alert(
         @JsonProperty("_metadata") AlertMetadata metadata,
         @JsonProperty("alert_number") String alertNumber,
-        @JsonProperty("version_number") Integer versionNumber,
         @JsonProperty("publication_date") OffsetDateTime publicationDate,
         @JsonProperty("risks") List<String> risks,
         @JsonProperty("risk_description") String riskDescription,

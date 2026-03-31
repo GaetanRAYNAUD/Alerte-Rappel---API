@@ -59,7 +59,7 @@ public record RappelConsoRappel(
 ) {
 
     public Alert toAlert() {
-        AlertMetadataSource source = new AlertMetadataSource(RappelConsoService.SOURCE_NAME, this.id, this.lienVersLaFicheRappel, OffsetDateTime.now());
+        AlertMetadataSource source = new AlertMetadataSource(RappelConsoService.SOURCE_NAME, this.id, this.lienVersLaFicheRappel, OffsetDateTime.now(), this.numeroVersion);
         AlertMetadata metadata = new AlertMetadata(List.of(source), this.rappelGuid);
 
         List<String> risks = this.risquesEncourus == null ? null
@@ -129,7 +129,6 @@ public record RappelConsoRappel(
         return new Alert(
                 metadata,
                 this.numeroFiche == null ? null : this.numeroFiche.toUpperCase(),
-                this.numeroVersion,
                 this.datePublication,
                 risks,
                 this.motifRappel,

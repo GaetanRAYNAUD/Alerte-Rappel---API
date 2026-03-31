@@ -18,6 +18,7 @@ import java.nio.channels.FileLock;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.util.concurrent.locks.ReentrantLock;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -52,6 +53,8 @@ public abstract class Explore21Service<D extends Explore21Source> {
 
     protected final String dateField;
 
+    private final ReentrantLock processLock = new ReentrantLock();
+
     protected Explore21Service(RestClient.Builder restClientBuilder, Explore21Properties properties, DataProperties dataProperties,
                                JsonMapper jsonMapper, TaskScheduler taskScheduler, String sourceName, Class<D> dataClass, String dateField) throws IOException {
         this.updateClient = properties.restClientBuilder(restClientBuilder)
@@ -71,6 +74,7 @@ public abstract class Explore21Service<D extends Explore21Source> {
     }
 
     public void checkNewData() {
+        this.processLock.lock();
         try (FileChannel channel = FileChannel.open(this.lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
              FileLock lock = channel.tryLock()) {
             if (lock == null) {
@@ -80,6 +84,8 @@ public abstract class Explore21Service<D extends Explore21Source> {
             doCheckNewData();
         } catch (IOException e) {
             this.logger.error("Failed to acquire lock for {}", this.sourceName, e);
+        } finally {
+            this.processLock.unlock();
         }
     }
 
@@ -92,7 +98,7 @@ public abstract class Explore21Service<D extends Explore21Source> {
 
             if (response != null && response.totalCount() != null && response.totalCount() > 0) {
                 this.logger.info("New data for {}: {} record(s) since {}", this.sourceName, response.totalCount(), lastDate);
-                handleNewData(lastDate);
+                handleNewData(lastDate, data);
             } else {
                 this.logger.info("No new data for {} since {}", this.sourceName, lastDate);
             }
@@ -165,5 +171,21 @@ public abstract class Explore21Service<D extends Explore21Source> {
         }
     }
 
-    protected abstract void handleNewData(OffsetDateTime since) throws IOException;
+    protected abstract void handleNewData(OffsetDateTime since, D data);
+
+    protected void persist(D data) {
+        if (this.processLock.isHeldByCurrentThread()) {
+            this.jsonMapper.writeValue(this.dataPath.toFile(), data);
+        } else {
+            this.processLock.lock();
+            try (FileChannel channel = FileChannel.open(this.lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                 FileLock lock = channel.lock()) {
+                this.jsonMapper.writeValue(this.dataPath.toFile(), data);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to acquire lock for persist on " + this.sourceName, e);
+            } finally {
+                this.processLock.unlock();
+            }
+        }
+    }
 }

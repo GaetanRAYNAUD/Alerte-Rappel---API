@@ -37,14 +37,14 @@ public class RappelConsoService extends Explore21Service<RappelConsoData> {
     }
 
     @Override
-    protected void handleNewData(OffsetDateTime since) {
+    protected void handleNewData(OffsetDateTime since, RappelConsoData data) {
         String where = since == null ? this.dateField + " is not null" : this.dateField + " > \"" + since + "\"";
 
         List<RappelConsoRappel> rappels = this.updateClient.get()
                                                            .uri(b -> b.path("/exports/json")
                                                                       .queryParam("where", where)
-                                                                      .queryParam("limit", 10) //Todo change to -1
-                                                                      .queryParam("order_by", this.dateField + " DESC")
+                                                                      .queryParam("limit", -1)
+                                                                      .queryParam("order_by", this.dateField + " ASC")
                                                                       .queryParam("lang", "fr")
                                                                       .queryParam("timezone", "UTC")
                                                                       .queryParam("use_labels", true)
@@ -59,5 +59,8 @@ public class RappelConsoService extends Explore21Service<RappelConsoData> {
 
         this.logger.info("New data for {}: {} alert(s) since {}", this.sourceName, alerts.size(), since);
         this.alertService.addAlerts(alerts);
+
+        data.setLastPublishData(rappels.stream().map(RappelConsoRappel::datePublication).max(OffsetDateTime::compareTo).orElse(data.getLastPublishData()));
+        persist(data);
     }
 }
