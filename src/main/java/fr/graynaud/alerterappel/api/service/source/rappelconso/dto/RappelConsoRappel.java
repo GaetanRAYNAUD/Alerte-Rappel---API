@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -58,71 +58,84 @@ public record RappelConsoRappel(
         @JsonProperty("lien_vers_la_fiche_rappel") String lienVersLaFicheRappel
 ) {
 
+    private static final DateTimeFormatter FR_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    private static String formatDate(String isoDate) {
+        return LocalDate.parse(isoDate).format(FR_DATE);
+    }
+
+    private static String capitalize(String s) {
+        return StringUtils.capitalize(StringUtils.trimToNull(s));
+    }
+
     public Alert toAlert() {
         AlertMetadataSource source = new AlertMetadataSource(RappelConsoService.SOURCE_NAME, this.id, this.lienVersLaFicheRappel, OffsetDateTime.now(), this.numeroVersion);
         AlertMetadata metadata = new AlertMetadata(List.of(source), this.rappelGuid);
 
         List<String> risks = this.risquesEncourus == null ? null
-                                                          : Arrays.stream(this.risquesEncourus.split(","))
-                                                                  .map(StringUtils::trimToNull)
+                                                          : Arrays.stream(this.risquesEncourus.split("[,|]"))
+                                                                  .map(RappelConsoRappel::capitalize)
                                                                   .filter(StringUtils::isNotBlank)
                                                                   .toList();
 
         IdentificationProduits identification = IdentificationProduitsParser.parse(this.identificationProduits, this.categorieProduit);
         List<ProduitIdentifie> blocs = identification.blocs();
 
-        List<String> barcodes = blocs.stream().map(ProduitIdentifie::gtin).filter(Objects::nonNull).toList();
-        List<String> batchNumbers = blocs.stream().map(ProduitIdentifie::lot).filter(Objects::nonNull).toList();
+        List<String> barcodes = blocs.stream().map(ProduitIdentifie::gtin).filter(StringUtils::isNotBlank).toList();
+        List<String> batchNumbers = blocs.stream().map(ProduitIdentifie::lot).filter(StringUtils::isNotBlank).map(RappelConsoRappel::capitalize).toList();
         String productionDates = blocs.stream()
                                       .filter(b -> b.dateDebut() != null)
                                       .map(b -> {
-                                          String line = b.lot() != null ? b.lot() + ": " : "";
-                                          line += b.dateDebut();
+                                          String line = b.typeDate() != null ? capitalize(b.typeDate()) + " " : "";
+                                          line += formatDate(b.dateDebut());
                                           if (b.dateFin() != null) {
-                                              line += " - " + b.dateFin();
+                                              line += " - " + formatDate(b.dateFin());
                                           }
                                           return line;
                                       })
                                       .collect(Collectors.joining("\n"));
 
         AlertProduct product = new AlertProduct(
-                this.libelle,
+                capitalize(this.libelle),
                 null,
-                this.modelesOuReferences,
-                this.marqueProduit,
-                this.categorieProduit,
-                this.sousCategoreProduit,
+                capitalize(this.modelesOuReferences),
+                capitalize(this.marqueProduit),
+                capitalize(this.categorieProduit),
+                capitalize(this.sousCategoreProduit),
                 null,
                 barcodes.isEmpty() ? null : barcodes,
                 batchNumbers.isEmpty() ? null : batchNumbers,
-                this.informationsComplementaires == null ? null : List.of(this.informationsComplementaires),
-                this.conditionnements,
+                this.informationsComplementaires == null ? null : List.of(capitalize(this.informationsComplementaires)),
+                capitalize(this.conditionnements),
                 productionDates.isEmpty() ? null : productionDates
         );
 
         AlertCommercialization commercialization = new AlertCommercialization(
                 null,
                 "France",
-                this.zoneGeographiqueDeVente == null ? null : List.of(this.zoneGeographiqueDeVente),
+                this.zoneGeographiqueDeVente == null ? null : List.of(capitalize(this.zoneGeographiqueDeVente)),
                 null,
                 this.dateDebutCommercialisation,
                 this.dateDateFinCommercialisation,
-                this.distributeurs
+                capitalize(this.distributeurs)
         );
 
         AlertMeasures measures = new AlertMeasures(
                 null,
-                this.natureJuridiqueRappel == null ? null : List.of(new AlertMeasureItem(null, null, this.natureJuridiqueRappel, null)),
+                this.natureJuridiqueRappel == null ? null : List.of(new AlertMeasureItem(null, null, capitalize(this.natureJuridiqueRappel), null)),
                 null,
-                this.conduitesATenirParLeConsommateur,
-                this.modalitesDeCompensation,
+                this.conduitesATenirParLeConsommateur == null ? null
+                                                               : Arrays.stream(this.conduitesATenirParLeConsommateur.split("\\|"))
+                                                                       .map(RappelConsoRappel::capitalize)
+                                                                       .filter(StringUtils::isNotBlank)
+                                                                       .toList(),
+                capitalize(this.modalitesDeCompensation),
                 this.dateDeLaProcedureDeRappel
         );
 
         List<String> photos = this.liensVersLesImages == null ? null
                                                               : Arrays.stream(this.liensVersLesImages.split("\\|"))
-                                                                      .map(String::trim)
-                                                                      .filter(s -> !s.isEmpty())
+                                                                      .filter(StringUtils::isNotBlank)
                                                                       .toList();
         AlertMedia media = new AlertMedia(photos, this.lienVersLaFicheRappel);
 
@@ -131,13 +144,13 @@ public record RappelConsoRappel(
                 this.numeroFiche == null ? null : this.numeroFiche.toUpperCase(),
                 this.datePublication,
                 risks,
-                this.motifRappel,
-                this.descriptionComplementaireRisque,
+                capitalize(this.motifRappel),
+                capitalize(this.descriptionComplementaireRisque),
                 product,
                 commercialization,
                 measures,
                 media,
-                this.informationsComplementairesPubliques
+                capitalize(this.informationsComplementairesPubliques)
         );
     }
 }

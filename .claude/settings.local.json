@@ -3,7 +3,8 @@
     "allow": [
       "Bash(./mvnw compile:*)",
       "Bash(./mvnw test:*)",
-      "Bash(./mvnw clean:*)"
+      "Bash(./mvnw clean:*)",
+      "Bash(./mvnw dependency:list -q)"
     ]
   }
 }

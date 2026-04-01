@@ -16,5 +16,5 @@ import java.util.List;
  * @param compensationTerms     Modalités de compensation proposées (source : RappelConso {@code modalites_de_compensation})
  * @param procedureEndDate      Date limite de la procédure de rappel (source : RappelConso {@code date_de_fin_de_la_procedure_de_rappel})
  */
-public record AlertMeasures(Boolean recallPublishedOnline, List<AlertMeasureItem> measuresList, List<AlertCompanyRecall> companyRecalls, String consumerActions,
-                            String compensationTerms, LocalDate procedureEndDate) {}
+public record AlertMeasures(Boolean recallPublishedOnline, List<AlertMeasureItem> measuresList, List<AlertCompanyRecall> companyRecalls,
+                            List<String> consumerActions, String compensationTerms, LocalDate procedureEndDate) {}

@@ -1,11 +1,13 @@
 package fr.graynaud.alerterappel.api.controller.publics;
 
+import fr.graynaud.alerterappel.api.controller.dto.PageResponse;
 import fr.graynaud.alerterappel.api.service.alert.AlertService;
 import fr.graynaud.alerterappel.api.service.alert.dto.Alert;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -16,6 +18,11 @@ public class AlertController {
 
     public AlertController(AlertService alertService) {
         this.alertService = alertService;
+    }
+
+    @GetMapping("/latest")
+    public PageResponse<Alert> getLatest(@RequestParam(defaultValue = "0") int page) {
+        return this.alertService.getLatest(page, 15);
     }
 
     @GetMapping("/{*alertNumber}")

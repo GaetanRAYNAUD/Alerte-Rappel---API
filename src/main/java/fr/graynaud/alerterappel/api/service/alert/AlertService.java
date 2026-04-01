@@ -1,6 +1,7 @@
 package fr.graynaud.alerterappel.api.service.alert;
 
 import fr.graynaud.alerterappel.api.config.properties.DataProperties;
+import fr.graynaud.alerterappel.api.controller.dto.PageResponse;
 import fr.graynaud.alerterappel.api.service.alert.dto.Alert;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertCommercialization;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertMeasures;
@@ -33,6 +34,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,6 +44,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+
 
 @Service
 public class AlertService implements ApplicationListener<ApplicationStartedEvent>, DisposableBean {
@@ -56,6 +60,8 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
     private volatile Map<String, Alert> alerts = new ConcurrentHashMap<>();
 
     private volatile Map<String, Alert> barcodeIndex = new ConcurrentHashMap<>();
+
+    private volatile List<Alert> sortedByDate = List.of();
 
     private final JsonMapper jsonMapper;
 
@@ -95,6 +101,18 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         return Optional.ofNullable(this.barcodeIndex.get(barcode));
     }
 
+    public PageResponse<Alert> getLatest(int page, int size) {
+        List<Alert> sorted = this.sortedByDate;
+        int totalElements = sorted.size();
+        int totalPages = (totalElements + size - 1) / size;
+        int from = page * size;
+        if (from >= totalElements) {
+            return new PageResponse<>(List.of(), page, size, totalPages, totalElements);
+        }
+        List<Alert> content = sorted.subList(from, Math.min(from + size, totalElements));
+        return new PageResponse<>(content, page, size, totalPages, totalElements);
+    }
+
     public synchronized void addAlerts(List<Alert> alerts) {
         if (CollectionUtils.isEmpty(alerts)) {
             return;
@@ -112,7 +130,7 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         }
         LOGGER.info("Added {} alerts ({} merged), total: {}", alerts.size(), merged, this.alerts.size());
 
-        rebuildBarcodeIndex();
+        rebuildIndexes();
         persist();
     }
 
@@ -342,11 +360,22 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
             }
 
             this.alerts = new ConcurrentHashMap<>(loaded);
-            rebuildBarcodeIndex();
+            rebuildIndexes();
             LOGGER.info("Loaded {} alerts", this.alerts.size());
         } catch (Exception e) {
             LOGGER.error("Failed to load alerts from {}", this.path, e);
         }
+    }
+
+    private void rebuildIndexes() {
+        rebuildBarcodeIndex();
+        rebuildSortedByDate();
+    }
+
+    private void rebuildSortedByDate() {
+        List<Alert> sorted = new ArrayList<>(this.alerts.values());
+        sorted.sort(Comparator.comparing(Alert::publicationDate, Comparator.nullsLast(Comparator.reverseOrder())));
+        this.sortedByDate = Collections.unmodifiableList(sorted);
     }
 
     private void rebuildBarcodeIndex() {

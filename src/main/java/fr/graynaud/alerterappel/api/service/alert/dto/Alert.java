@@ -1,5 +1,7 @@
 package fr.graynaud.alerterappel.api.service.alert.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 

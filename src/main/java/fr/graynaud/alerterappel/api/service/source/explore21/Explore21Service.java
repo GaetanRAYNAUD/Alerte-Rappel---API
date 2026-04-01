@@ -100,8 +100,8 @@ public abstract class Explore21Service<D extends Explore21Source> {
             OffsetDateTime lastDate = data.getLastDate();
 
             if (this.environment.matchesProfiles("local")) {
-                if (lastDate == null || lastDate.isBefore(OffsetDateTime.now(ZoneOffset.UTC).minusYears(1))) {
-                    lastDate = OffsetDateTime.now(ZoneOffset.UTC).minusYears(1);
+                if (lastDate == null || lastDate.isBefore(OffsetDateTime.now(ZoneOffset.UTC).minusMonths(6))) {
+                    lastDate = OffsetDateTime.now(ZoneOffset.UTC).minusMonths(6);
                 }
             }
 
