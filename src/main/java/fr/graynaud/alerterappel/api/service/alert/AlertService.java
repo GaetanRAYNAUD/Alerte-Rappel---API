@@ -4,6 +4,7 @@ import fr.graynaud.alerterappel.api.config.properties.DataProperties;
 import fr.graynaud.alerterappel.api.service.alert.dto.Alert;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertCommercialization;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertMeasures;
+import fr.graynaud.alerterappel.api.service.alert.dto.AlertMeasureItem;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertMedia;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertMetadata;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertMetadataSource;
@@ -36,19 +37,25 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 @Service
 public class AlertService implements ApplicationListener<ApplicationStartedEvent>, DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlertService.class);
 
+    private static final Pattern NON_ALNUM = Pattern.compile("[^\\p{L}\\p{N}]");
+
     private final Path path;
 
     private final Path lockPath;
 
     private volatile Map<String, Alert> alerts = new ConcurrentHashMap<>();
+
+    private volatile Map<String, Alert> barcodeIndex = new ConcurrentHashMap<>();
 
     private final JsonMapper jsonMapper;
 
@@ -80,6 +87,14 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         this.watchService.close();
     }
 
+    public Optional<Alert> findByAlertNumber(String alertNumber) {
+        return Optional.ofNullable(this.alerts.get(alertNumber.toUpperCase()));
+    }
+
+    public Optional<Alert> findByBarcode(String barcode) {
+        return Optional.ofNullable(this.barcodeIndex.get(barcode));
+    }
+
     public synchronized void addAlerts(List<Alert> alerts) {
         if (CollectionUtils.isEmpty(alerts)) {
             return;
@@ -97,6 +112,7 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         }
         LOGGER.info("Added {} alerts ({} merged), total: {}", alerts.size(), merged, this.alerts.size());
 
+        rebuildBarcodeIndex();
         persist();
     }
 
@@ -246,7 +262,7 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
         return new AlertMeasures(
                 ObjectUtils.firstNonNull(rapex.recallPublishedOnline(), other.recallPublishedOnline()),
-                ObjectUtils.firstNonNull(rapex.measuresList(), other.measuresList()),
+                mergeMeasureItems(rapex.measuresList(), other.measuresList()),
                 ObjectUtils.firstNonNull(rapex.companyRecalls(), other.companyRecalls()),
                 ObjectUtils.firstNonNull(rapex.consumerActions(), other.consumerActions()),
                 ObjectUtils.firstNonNull(rapex.compensationTerms(), other.compensationTerms()),
@@ -262,23 +278,57 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
             return rapex;
         }
 
-        return new AlertMedia(
-                mergeLists(rapex.photos(), other.photos()),
-                ObjectUtils.firstNonNull(rapex.recallSheetUrl(), other.recallSheetUrl())
-        );
+        return new AlertMedia(mergeLists(rapex.photos(), other.photos()), ObjectUtils.firstNonNull(other.recallSheetUrl(), rapex.recallSheetUrl()));
     }
 
-    private static <T> List<T> mergeLists(Collection<T> primary, Collection<T> secondary) {
-        LinkedHashSet<T> merged = new LinkedHashSet<>();
+    private static List<AlertMeasureItem> mergeMeasureItems(List<AlertMeasureItem> primary, List<AlertMeasureItem> secondary) {
+        LinkedHashSet<String> seenCategories = new LinkedHashSet<>();
+        List<AlertMeasureItem> merged = new ArrayList<>();
+
         if (primary != null) {
-            merged.addAll(primary);
+            for (AlertMeasureItem item : primary) {
+                if (item.category() == null || seenCategories.add(normalize(item.category()))) {
+                    merged.add(item);
+                }
+            }
         }
 
         if (secondary != null) {
-            merged.addAll(secondary);
+            for (AlertMeasureItem item : secondary) {
+                if (item.category() == null || seenCategories.add(normalize(item.category()))) {
+                    merged.add(item);
+                }
+            }
         }
 
-        return merged.isEmpty() ? null : new ArrayList<>(merged);
+        return merged.isEmpty() ? null : merged;
+    }
+
+    private static String normalize(String s) {
+        return NON_ALNUM.matcher(s.toLowerCase()).replaceAll("");
+    }
+
+    private static List<String> mergeLists(Collection<String> primary, Collection<String> secondary) {
+        LinkedHashSet<String> normalizedKeys = new LinkedHashSet<>();
+        List<String> merged = new ArrayList<>();
+
+        if (primary != null) {
+            for (String s : primary) {
+                if (normalizedKeys.add(normalize(s))) {
+                    merged.add(s);
+                }
+            }
+        }
+
+        if (secondary != null) {
+            for (String s : secondary) {
+                if (normalizedKeys.add(normalize(s))) {
+                    merged.add(s);
+                }
+            }
+        }
+
+        return merged.isEmpty() ? null : merged;
     }
 
     private void loadAlerts() {
@@ -292,17 +342,34 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
             }
 
             this.alerts = new ConcurrentHashMap<>(loaded);
+            rebuildBarcodeIndex();
             LOGGER.info("Loaded {} alerts", this.alerts.size());
         } catch (Exception e) {
             LOGGER.error("Failed to load alerts from {}", this.path, e);
         }
     }
 
+    private void rebuildBarcodeIndex() {
+        Map<String, Alert> index = new ConcurrentHashMap<>();
+        for (Alert alert : this.alerts.values()) {
+            if (alert.product() != null && !CollectionUtils.isEmpty(alert.product().barcodes())) {
+                for (String barcode : alert.product().barcodes()) {
+                    Alert existing = index.get(barcode);
+                    if (existing == null || (alert.publicationDate() != null &&
+                                             (existing.publicationDate() == null || alert.publicationDate().isAfter(existing.publicationDate())))) {
+                        index.put(barcode, alert);
+                    }
+                }
+            }
+        }
+        this.barcodeIndex = index;
+    }
+
     private void persist() {
         this.selfWrite.set(true);
         try (FileChannel channel = FileChannel.open(this.lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
              FileLock lock = channel.lock()) {
-            this.jsonMapper.writerWithDefaultPrettyPrinter().writeValue(this.path.toFile(), this.alerts.values());
+            this.jsonMapper.writeValue(this.path.toFile(), this.alerts.values());
             LOGGER.info("Persisted {} alerts to {}", this.alerts.size(), this.path);
         } catch (IOException e) {
             LOGGER.error("Failed to persist alerts", e);

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -30,7 +31,7 @@ public class RapexService extends Explore21Service<RapexData> {
 
     public static final String SOURCE_NAME = "Rapex";
 
-    private static final int MAX_PAGE = 1;
+    private static final int MAX_PAGE = 100;
 
     private final RestClient getClient;
 
@@ -39,8 +40,8 @@ public class RapexService extends Explore21Service<RapexData> {
     private final RapexProperties properties;
 
     public RapexService(RestClient.Builder restClientBuilder, RapexProperties properties, DataProperties dataProperties,
-                        JsonMapper jsonMapper, TaskScheduler taskScheduler, AlertService alertService) throws IOException {
-        super(restClientBuilder, properties, dataProperties, jsonMapper, taskScheduler, SOURCE_NAME, RapexData.class, "modification_date");
+                        JsonMapper jsonMapper, TaskScheduler taskScheduler, AlertService alertService, Environment environment) throws IOException {
+        super(restClientBuilder, properties, dataProperties, jsonMapper, taskScheduler, SOURCE_NAME, RapexData.class, "modification_date", environment);
         this.alertService = alertService;
         this.getClient = restClientBuilder.clone().baseUrl(properties.getGetBaseUrl()).build();
         this.properties = properties;
@@ -56,7 +57,7 @@ public class RapexService extends Explore21Service<RapexData> {
         Map<String, String> translations = this.getClient.get()
                                                          .uri(b -> b.pathSegment(this.properties.getTranslationPath(), "fr").build())
                                                          .retrieve()
-                                                         .body(Map.class);
+                                                         .body(new ParameterizedTypeReference<>() {});
 
         Explore21Response<RapexNotificationSummary> response;
         int page = 0;
@@ -78,10 +79,11 @@ public class RapexService extends Explore21Service<RapexData> {
                 break;
             }
 
+            this.logger.info("New data for {}: {} record(s) since {}", this.sourceName, response.totalCount(), since);
+
             List<Alert> alerts = response.results()
-                                         .stream()
+                                         .parallelStream()
                                          .map(RapexNotificationSummary::rapexUrl)
-                                         .map(s -> StringUtils.substringAfterLast(s, '/'))
                                          .map(id -> fetchAlert(id, translations))
                                          .filter(Objects::nonNull)
                                          .toList();
@@ -93,14 +95,16 @@ public class RapexService extends Explore21Service<RapexData> {
         } while (page < MAX_PAGE);
     }
 
-    private Alert fetchAlert(String id, Map<String, String> translations) {
+    private Alert fetchAlert(String rapexUrl, Map<String, String> translations) {
+        String id = StringUtils.substringAfterLast(rapexUrl, "/");
+
         try {
             RapexNotification rapexNotification = this.getClient.get()
                                                                 .uri(b -> b.pathSegment(this.properties.getGetPath(), id).queryParam("language", "fr").build())
                                                                 .retrieve()
                                                                 .body(RapexNotification.class);
 
-            return rapexNotification != null ? rapexNotification.toAlert(translations) : null;
+            return rapexNotification != null ? rapexNotification.toAlert(translations, rapexUrl) : null;
         } catch (HttpClientErrorException.NotFound e) {
             this.logger.warn("Notification {} not found, skipping", id);
             return null;

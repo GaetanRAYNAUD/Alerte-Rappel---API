@@ -5,6 +5,7 @@ import fr.graynaud.alerterappel.api.config.properties.Explore21Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.scheduling.TaskScheduler;
@@ -55,8 +56,12 @@ public abstract class Explore21Service<D extends Explore21Source> {
 
     private final ReentrantLock processLock = new ReentrantLock();
 
+    protected final Environment environment;
+
     protected Explore21Service(RestClient.Builder restClientBuilder, Explore21Properties properties, DataProperties dataProperties,
-                               JsonMapper jsonMapper, TaskScheduler taskScheduler, String sourceName, Class<D> dataClass, String dateField) throws IOException {
+                               JsonMapper jsonMapper, TaskScheduler taskScheduler, String sourceName, Class<D> dataClass, String dateField,
+                               Environment environment) throws IOException {
+        this.environment = environment;
         this.updateClient = properties.restClientBuilder(restClientBuilder)
                                       .requestInterceptor((request, body, execution) -> {
                                           ClientHttpResponse response = execution.execute(request, body);
@@ -93,6 +98,12 @@ public abstract class Explore21Service<D extends Explore21Source> {
         try {
             D data = this.jsonMapper.readValue(this.dataPath.toFile(), this.dataClass);
             OffsetDateTime lastDate = data.getLastDate();
+
+            if (this.environment.matchesProfiles("local")) {
+                if (lastDate == null || lastDate.isBefore(OffsetDateTime.now(ZoneOffset.UTC).minusYears(1))) {
+                    lastDate = OffsetDateTime.now(ZoneOffset.UTC).minusYears(1);
+                }
+            }
 
             Explore21Response<?> response = fetchLatestSince(lastDate);
 

@@ -9,6 +9,7 @@ import fr.graynaud.alerterappel.api.service.source.rappelconso.dto.RappelConsoDa
 import fr.graynaud.alerterappel.api.service.source.rappelconso.dto.RappelConsoRappel;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -26,8 +27,8 @@ public class RappelConsoService extends Explore21Service<RappelConsoData> {
     private final AlertService alertService;
 
     public RappelConsoService(RestClient.Builder restClientBuilder, RappelConsoProperties properties, DataProperties dataProperties,
-                              JsonMapper jsonMapper, TaskScheduler taskScheduler, AlertService alertService) throws IOException {
-        super(restClientBuilder, properties, dataProperties, jsonMapper, taskScheduler, SOURCE_NAME, RappelConsoData.class, "date_publication");
+                              JsonMapper jsonMapper, TaskScheduler taskScheduler, AlertService alertService, Environment environment) throws IOException {
+        super(restClientBuilder, properties, dataProperties, jsonMapper, taskScheduler, SOURCE_NAME, RappelConsoData.class, "date_publication", environment);
         this.alertService = alertService;
     }
 
