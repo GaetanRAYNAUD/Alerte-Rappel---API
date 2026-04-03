@@ -1,17 +1,8 @@
 package fr.graynaud.alerterappel.api.service.alert;
 
-import fr.graynaud.alerterappel.api.config.properties.DataProperties;
 import fr.graynaud.alerterappel.api.controller.dto.PageResponse;
 import fr.graynaud.alerterappel.api.service.alert.dto.Alert;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertCommercialization;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertMeasures;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertMeasureItem;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertMedia;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertMetadata;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertMetadataSource;
-import fr.graynaud.alerterappel.api.service.alert.dto.AlertProduct;
-import fr.graynaud.alerterappel.api.service.source.rapex.RapexService;
-import org.apache.commons.lang3.ObjectUtils;
+import fr.graynaud.alerterappel.api.service.alert.dto.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -19,43 +10,37 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
-
 
 @Service
 public class AlertService implements ApplicationListener<ApplicationStartedEvent>, DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlertService.class);
 
-    private static final Pattern NON_ALNUM = Pattern.compile("[^\\p{L}\\p{N}]");
+    private final AlertRepository repository;
 
-    private final Path path;
+    private final AlertMerger merger;
 
-    private final Path lockPath;
+    private final AlertSearchIndex searchIndex;
+
+    private final WatchService watchService;
+
+    private final AtomicBoolean selfWrite = new AtomicBoolean(false);
 
     private volatile Map<String, Alert> alerts = new ConcurrentHashMap<>();
 
@@ -63,29 +48,18 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
     private volatile List<Alert> sortedByDate = List.of();
 
-    private final JsonMapper jsonMapper;
-
-    private final WatchService watchService;
-
-    private final AtomicBoolean selfWrite = new AtomicBoolean(false);
-
-    public AlertService(DataProperties dataProperties, JsonMapper jsonMapper) throws IOException {
-        this.path = dataProperties.getDataPath();
-        this.lockPath = this.path.resolveSibling(this.path.getFileName() + ".lock");
-        this.jsonMapper = jsonMapper;
+    public AlertService(AlertRepository repository, AlertMerger merger, AlertSearchIndex searchIndex) throws IOException {
+        this.repository = repository;
+        this.merger = merger;
+        this.searchIndex = searchIndex;
         this.watchService = FileSystems.getDefault().newWatchService();
-        this.path.getParent().register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+        this.repository.getPath().getParent().register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY);
     }
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        loadAlerts();
+        loadAndIndex();
         startFileWatcher();
-    }
-
-    @Override
-    public boolean supportsAsyncExecution() {
-        return false;
     }
 
     @Override
@@ -101,16 +75,25 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         return Optional.ofNullable(this.barcodeIndex.get(barcode));
     }
 
-    public PageResponse<Alert> getLatest(int page, int size) {
-        List<Alert> sorted = this.sortedByDate;
-        int totalElements = sorted.size();
-        int totalPages = (totalElements + size - 1) / size;
-        int from = page * size;
-        if (from >= totalElements) {
-            return new PageResponse<>(List.of(), page, size, totalPages, totalElements);
+    public PageResponse<Alert> search(String query, int page, int size) {
+        if (query == null || query.isBlank()) {
+            return new PageResponse<>(List.of(), page, size, 0, 0);
         }
-        List<Alert> content = sorted.subList(from, Math.min(from + size, totalElements));
-        return new PageResponse<>(content, page, size, totalPages, totalElements);
+
+        SearchResult result = this.searchIndex.search(query, page, size);
+        List<Alert> content = new ArrayList<>();
+        for (String alertNumber : result.alertNumbers()) {
+            Alert alert = this.alerts.get(alertNumber);
+            if (alert != null) {
+                content.add(alert);
+            }
+        }
+
+        return PageResponse.from(content, page, size, result.totalHits());
+    }
+
+    public PageResponse<Alert> getLatest(int page, int size) {
+        return PageResponse.from(this.sortedByDate, page, size);
     }
 
     public synchronized void addAlerts(List<Alert> alerts) {
@@ -122,7 +105,7 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         for (Alert alert : alerts) {
             Alert existing = this.alerts.get(alert.alertNumber());
             if (existing != null) {
-                this.alerts.put(alert.alertNumber(), mergeAlerts(existing, alert));
+                this.alerts.put(alert.alertNumber(), this.merger.mergeAlerts(existing, alert));
                 merged++;
             } else {
                 this.alerts.put(alert.alertNumber(), alert);
@@ -134,248 +117,30 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         persist();
     }
 
-    private Alert mergeAlerts(Alert existing, Alert incoming) {
-        // If the existing alert has a single source with the same origin as the incoming one, replace or keep based on version
-        if (hasSingleSourceWithSameOrigin(existing, incoming)) {
-            Integer existingVersion = existing.metadata().sources().getFirst().versionNumber();
-            Integer incomingVersion = incoming.metadata().sources().getFirst().versionNumber();
-
-            if (existingVersion != null && incomingVersion != null) {
-                return incomingVersion >= existingVersion ? incoming : existing;
-            }
-
-            return incoming;
-        }
-
-        Alert rapex = isRapex(existing) ? existing : isRapex(incoming) ? incoming : null;
-        Alert other = rapex == existing ? incoming : existing;
-
-        if (rapex == null) {
-            return incoming;
-        }
-
-        return new Alert(
-                mergeMetadata(existing.metadata(), incoming.metadata()),
-                rapex.alertNumber(),
-                ObjectUtils.firstNonNull(rapex.publicationDate(), other.publicationDate()),
-                mergeLists(rapex.risks(), other.risks()),
-                ObjectUtils.firstNonNull(rapex.riskDescription(), other.riskDescription()),
-                ObjectUtils.firstNonNull(rapex.supplementaryRiskDescription(), other.supplementaryRiskDescription()),
-                mergeProduct(rapex.product(), other.product()),
-                mergeCommercialization(rapex.commercialization(), other.commercialization()),
-                mergeMeasures(rapex.measures(), other.measures()),
-                mergeMedia(rapex.media(), other.media()),
-                ObjectUtils.firstNonNull(rapex.additionalInformation(), other.additionalInformation())
-        );
-    }
-
-    private boolean hasSingleSourceWithSameOrigin(Alert existing, Alert incoming) {
-        if (existing.metadata() == null || existing.metadata().sources() == null || existing.metadata().sources().size() != 1) {
-            return false;
-        }
-
-        if (incoming.metadata() == null || incoming.metadata().sources() == null || incoming.metadata().sources().isEmpty()) {
-            return false;
-        }
-
-        return existing.metadata().sources().getFirst().origin().equals(incoming.metadata().sources().getFirst().origin());
-    }
-
-    private boolean isRapex(Alert alert) {
-        return alert.metadata() != null
-               && alert.metadata().sources() != null
-               && alert.metadata().sources().stream().anyMatch(s -> RapexService.SOURCE_NAME.equals(s.origin()));
-    }
-
-    private AlertMetadata mergeMetadata(AlertMetadata a, AlertMetadata b) {
-        List<AlertMetadataSource> sources = new ArrayList<>();
-        if (a != null && a.sources() != null) {
-            sources.addAll(a.sources());
-        }
-
-        if (b != null && b.sources() != null) {
-            for (AlertMetadataSource newSource : b.sources()) {
-                int existingIndex = -1;
-                for (int i = 0; i < sources.size(); i++) {
-                    if (sources.get(i).origin().equals(newSource.origin())) {
-                        existingIndex = i;
-                        break;
-                    }
-                }
-
-                if (existingIndex >= 0) {
-                    AlertMetadataSource existingSource = sources.get(existingIndex);
-                    if (existingSource.versionNumber() != null && newSource.versionNumber() != null) {
-                        if (newSource.versionNumber() >= existingSource.versionNumber()) {
-                            sources.set(existingIndex, newSource);
-                        }
-                    } else {
-                        sources.set(existingIndex, newSource);
-                    }
-                } else {
-                    sources.add(newSource);
-                }
-            }
-        }
-
-        String guid = a != null ? a.rappelconsoGuid() : null;
-
-        if (guid == null && b != null) {
-            guid = b.rappelconsoGuid();
-        }
-
-        return new AlertMetadata(sources, guid);
-    }
-
-    private AlertProduct mergeProduct(AlertProduct rapex, AlertProduct other) {
-        if (rapex == null) {
-            return other;
-        }
-        if (other == null) {
-            return rapex;
-        }
-
-        return new AlertProduct(
-                ObjectUtils.firstNonNull(rapex.specificName(), other.specificName()),
-                ObjectUtils.firstNonNull(rapex.type(), other.type()),
-                ObjectUtils.firstNonNull(rapex.description(), other.description()),
-                ObjectUtils.firstNonNull(rapex.brand(), other.brand()),
-                ObjectUtils.firstNonNull(rapex.family(), other.family()),
-                ObjectUtils.firstNonNull(rapex.category(), other.category()),
-                ObjectUtils.firstNonNull(rapex.counterfeit(), other.counterfeit()),
-                mergeLists(rapex.barcodes(), other.barcodes()),
-                mergeLists(rapex.batchNumbers(), other.batchNumbers()),
-                mergeLists(rapex.modelReferences(), other.modelReferences()),
-                ObjectUtils.firstNonNull(rapex.packagingDescription(), other.packagingDescription()),
-                ObjectUtils.firstNonNull(rapex.productionDates(), other.productionDates())
-        );
-    }
-
-    private AlertCommercialization mergeCommercialization(AlertCommercialization rapex, AlertCommercialization other) {
-        if (rapex == null) {
-            return other;
-        }
-        if (other == null) {
-            return rapex;
-        }
-
-        return new AlertCommercialization(
-                ObjectUtils.firstNonNull(rapex.originCountryName(), other.originCountryName()),
-                ObjectUtils.firstNonNull(rapex.alertCountryName(), other.alertCountryName()),
-                mergeLists(rapex.reactingCountries(), other.reactingCountries()),
-                ObjectUtils.firstNonNull(rapex.soldOnline(), other.soldOnline()),
-                ObjectUtils.firstNonNull(rapex.marketingStartDate(), other.marketingStartDate()),
-                ObjectUtils.firstNonNull(rapex.marketingEndDate(), other.marketingEndDate()),
-                ObjectUtils.firstNonNull(rapex.distributors(), other.distributors())
-        );
-    }
-
-    private AlertMeasures mergeMeasures(AlertMeasures rapex, AlertMeasures other) {
-        if (rapex == null) {
-            return other;
-        }
-        if (other == null) {
-            return rapex;
-        }
-
-        return new AlertMeasures(
-                ObjectUtils.firstNonNull(rapex.recallPublishedOnline(), other.recallPublishedOnline()),
-                mergeMeasureItems(rapex.measuresList(), other.measuresList()),
-                ObjectUtils.firstNonNull(rapex.companyRecalls(), other.companyRecalls()),
-                ObjectUtils.firstNonNull(rapex.consumerActions(), other.consumerActions()),
-                ObjectUtils.firstNonNull(rapex.compensationTerms(), other.compensationTerms()),
-                ObjectUtils.firstNonNull(rapex.procedureEndDate(), other.procedureEndDate())
-        );
-    }
-
-    private AlertMedia mergeMedia(AlertMedia rapex, AlertMedia other) {
-        if (rapex == null) {
-            return other;
-        }
-        if (other == null) {
-            return rapex;
-        }
-
-        return new AlertMedia(mergeLists(rapex.photos(), other.photos()), ObjectUtils.firstNonNull(other.recallSheetUrl(), rapex.recallSheetUrl()));
-    }
-
-    private static List<AlertMeasureItem> mergeMeasureItems(List<AlertMeasureItem> primary, List<AlertMeasureItem> secondary) {
-        LinkedHashSet<String> seenCategories = new LinkedHashSet<>();
-        List<AlertMeasureItem> merged = new ArrayList<>();
-
-        if (primary != null) {
-            for (AlertMeasureItem item : primary) {
-                if (item.category() == null || seenCategories.add(normalize(item.category()))) {
-                    merged.add(item);
-                }
-            }
-        }
-
-        if (secondary != null) {
-            for (AlertMeasureItem item : secondary) {
-                if (item.category() == null || seenCategories.add(normalize(item.category()))) {
-                    merged.add(item);
-                }
-            }
-        }
-
-        return merged.isEmpty() ? null : merged;
-    }
-
-    private static String normalize(String s) {
-        return NON_ALNUM.matcher(s.toLowerCase()).replaceAll("");
-    }
-
-    private static List<String> mergeLists(Collection<String> primary, Collection<String> secondary) {
-        LinkedHashSet<String> normalizedKeys = new LinkedHashSet<>();
-        List<String> merged = new ArrayList<>();
-
-        if (primary != null) {
-            for (String s : primary) {
-                if (normalizedKeys.add(normalize(s))) {
-                    merged.add(s);
-                }
-            }
-        }
-
-        if (secondary != null) {
-            for (String s : secondary) {
-                if (normalizedKeys.add(normalize(s))) {
-                    merged.add(s);
-                }
-            }
-        }
-
-        return merged.isEmpty() ? null : merged;
-    }
-
-    private void loadAlerts() {
-        LOGGER.info("Loading alerts from {}", this.path);
-        try (FileChannel channel = FileChannel.open(this.lockPath, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
-             FileLock lock = channel.lock(0, Long.MAX_VALUE, true)) {
-            Map<String, Alert> loaded = new HashMap<>();
-
-            for (Alert alert : this.jsonMapper.readValue(this.path, new TypeReference<List<Alert>>() {})) {
-                loaded.put(alert.alertNumber(), alert);
-            }
-
-            this.alerts = new ConcurrentHashMap<>(loaded);
+    private void loadAndIndex() {
+        try {
+            this.alerts = new ConcurrentHashMap<>(repository.loadAll());
             rebuildIndexes();
             LOGGER.info("Loaded {} alerts", this.alerts.size());
         } catch (Exception e) {
-            LOGGER.error("Failed to load alerts from {}", this.path, e);
+            LOGGER.error("Failed to load alerts", e);
         }
     }
 
     private void rebuildIndexes() {
         rebuildBarcodeIndex();
         rebuildSortedByDate();
+        rebuildSearchIndex();
     }
 
     private void rebuildSortedByDate() {
         List<Alert> sorted = new ArrayList<>(this.alerts.values());
         sorted.sort(Comparator.comparing(Alert::publicationDate, Comparator.nullsLast(Comparator.reverseOrder())));
         this.sortedByDate = Collections.unmodifiableList(sorted);
+    }
+
+    private void rebuildSearchIndex() {
+        this.searchIndex.rebuild(this.alerts);
     }
 
     private void rebuildBarcodeIndex() {
@@ -396,10 +161,8 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
     private void persist() {
         this.selfWrite.set(true);
-        try (FileChannel channel = FileChannel.open(this.lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-             FileLock lock = channel.lock()) {
-            this.jsonMapper.writeValue(this.path.toFile(), this.alerts.values());
-            LOGGER.info("Persisted {} alerts to {}", this.alerts.size(), this.path);
+        try {
+            this.repository.saveAll(this.alerts.values());
         } catch (IOException e) {
             LOGGER.error("Failed to persist alerts", e);
         } finally {
@@ -408,39 +171,23 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
     }
 
     private void startFileWatcher() {
-        String fileName = this.path.getFileName().toString();
-
+        String fileName = this.repository.getPath().getFileName().toString();
         Thread.ofVirtual().name("alert-file-watcher").start(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 WatchKey key;
-                try {
-                    key = this.watchService.take();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
+                try { key = this.watchService.take(); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
 
                 for (WatchEvent<?> event : key.pollEvents()) {
-                    if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-                        continue;
-                    }
-
+                    if (event.kind() == StandardWatchEventKinds.OVERFLOW) continue;
                     Path changed = (Path) event.context();
                     if (fileName.equals(changed.toString())) {
-                        if (this.selfWrite.get()) {
-                            LOGGER.debug("Skipping reload triggered by own write");
-                            continue;
-                        }
-
-                        LOGGER.info("Detected change on {}, reloading alerts", this.path);
-                        loadAlerts();
+                        if (this.selfWrite.get()) continue;
+                        LOGGER.info("Detected change on {}, reloading alerts", this.repository.getPath());
+                        loadAndIndex();
                     }
                 }
-
-                if (!key.reset()) {
-                    LOGGER.warn("Watch key for {} is no longer valid", this.path.getParent());
-                    break;
-                }
+                if (!key.reset()) break;
             }
         });
     }

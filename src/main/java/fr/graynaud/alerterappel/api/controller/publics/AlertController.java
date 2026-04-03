@@ -20,6 +20,11 @@ public class AlertController {
         this.alertService = alertService;
     }
 
+    @GetMapping("/search")
+    public PageResponse<Alert> search(@RequestParam String q, @RequestParam(defaultValue = "0") int page) {
+        return this.alertService.search(q, page, 15);
+    }
+
     @GetMapping("/latest")
     public PageResponse<Alert> getLatest(@RequestParam(defaultValue = "0") int page) {
         return this.alertService.getLatest(page, 15);

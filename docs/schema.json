@@ -4,7 +4,7 @@
     "description": "Schéma unifié pour les rappels de produits issus de Safety Gate (RAPEX, API JSON /public/api/notification) et RappelConso (API OpenData gouvernement français)",
     "type": "object",
     "properties": {
-        "_metadata": {
+        "metadata": {
             "type": "object",
             "description": "Métadonnées techniques sur l'enregistrement unifié",
             "properties": {
@@ -22,7 +22,7 @@
                                 ],
                                 "description": "Identifiant de la source"
                             },
-                            "source_id": {
+                            "sourceId": {
                                 "type": [
                                     "integer",
                                     "null"
@@ -37,13 +37,20 @@
                                 "format": "uri",
                                 "description": "URL vers la fiche source originale"
                             },
-                            "import_date": {
+                            "importDate": {
                                 "type": [
                                     "string",
                                     "null"
                                 ],
                                 "format": "date-time",
                                 "description": "Date à laquelle l'enregistrement a été importé depuis cette source"
+                            },
+                            "versionNumber": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ],
+                                "description": "Numéro de version de la fiche dans cette source (source: RappelConso numero_version)"
                             }
                         },
                         "required": [
@@ -51,7 +58,7 @@
                         ]
                     }
                 },
-                "rappelconso_guid": {
+                "rappelconsoGuid": {
                     "type": [
                         "string",
                         "null"
@@ -60,7 +67,7 @@
                 }
             }
         },
-        "alert_number": {
+        "alertNumber": {
             "type": "string",
             "description": "Numéro d'alerte commun aux deux sources (clé de jointure). Normaliser en majuscules. RAPEX: reference, RappelConso: numero_fiche",
             "examples": [
@@ -68,14 +75,7 @@
                 "SR/00939/26"
             ]
         },
-        "version_number": {
-            "type": [
-                "integer",
-                "null"
-            ],
-            "description": "Numéro de version de la fiche (source: RappelConso numero_version)"
-        },
-        "publication_date": {
+        "publicationDate": {
             "type": [
                 "string",
                 "null"
@@ -104,14 +104,14 @@
                 ]
             ]
         },
-        "risk_description": {
+        "riskDescription": {
             "type": [
                 "string",
                 "null"
             ],
             "description": "Description détaillée du risque (RAPEX: risk.versions.riskDescription, RappelConso: motif_rappel)"
         },
-        "supplementary_risk_description": {
+        "supplementaryRiskDescription": {
             "type": [
                 "string",
                 "null"
@@ -122,7 +122,7 @@
             "type": "object",
             "description": "Informations sur le produit concerné",
             "properties": {
-                "specific_name": {
+                "specificName": {
                     "type": [
                         "string",
                         "null"
@@ -157,7 +157,7 @@
                         "string",
                         "null"
                     ],
-                    "description": "Marque(s) du produit, normalisées en tableau. RAPEX: product.brands[0].brand, RappelConso: marque_produit",
+                    "description": "Marque(s) du produit. RAPEX: product.brands[0].brand, RappelConso: marque_produit",
                     "examples": [
                         "Bmw",
                         "JOURDAIN"
@@ -210,7 +210,7 @@
                         ]
                     ]
                 },
-                "batch_numbers": {
+                "batchNumbers": {
                     "type": [
                         "array",
                         "null"
@@ -228,7 +228,7 @@
                         ]
                     ]
                 },
-                "model_references": {
+                "modelReferences": {
                     "type": [
                         "array",
                         "null"
@@ -238,7 +238,7 @@
                         "type": "string"
                     }
                 },
-                "packaging_description": {
+                "packagingDescription": {
                     "type": [
                         "string",
                         "null"
@@ -249,7 +249,7 @@
                         "Support en carton."
                     ]
                 },
-                "production_dates": {
+                "productionDates": {
                     "type": [
                         "string",
                         "null"
@@ -265,7 +265,7 @@
             "type": "object",
             "description": "Informations sur la commercialisation et la traçabilité",
             "properties": {
-                "origin_country_name": {
+                "originCountryName": {
                     "type": [
                         "string",
                         "null"
@@ -276,7 +276,7 @@
                         "Germany"
                     ]
                 },
-                "alert_country_name": {
+                "alertCountryName": {
                     "type": [
                         "string",
                         "null"
@@ -286,7 +286,7 @@
                         "France"
                     ]
                 },
-                "reacting_countries": {
+                "reactingCountries": {
                     "type": [
                         "array",
                         "null"
@@ -309,20 +309,14 @@
                         ]
                     ]
                 },
-                "sold_online": {
+                "soldOnline": {
                     "type": [
                         "boolean",
                         "null"
                     ],
-                    "description": "Le produit est-il vendu en ligne ? (RAPEX: traceability.isSoldOnline.key)",
-                    "enum": [
-                        "option.yes",
-                        "option.no",
-                        "option.unknown",
-                        null
-                    ]
+                    "description": "Le produit est-il vendu en ligne ? (RAPEX: traceability.isSoldOnline.key)"
                 },
-                "marketing_start_date": {
+                "marketingStartDate": {
                     "type": [
                         "string",
                         "null"
@@ -330,7 +324,7 @@
                     "format": "date",
                     "description": "Date de début de commercialisation (source: RappelConso)"
                 },
-                "marketing_end_date": {
+                "marketingEndDate": {
                     "type": [
                         "string",
                         "null"
@@ -351,14 +345,14 @@
             "type": "object",
             "description": "Mesures prises et consignes",
             "properties": {
-                "recall_published_online": {
+                "recallPublishedOnline": {
                     "type": [
                         "boolean",
                         "null"
                     ],
                     "description": "Un rappel a-t-il été publié en ligne par l'entreprise ? (RAPEX: measureTaken.hasPublishedRecallOnline.key == option.yes)"
                 },
-                "measures_list": {
+                "measuresList": {
                     "type": [
                         "array",
                         "null"
@@ -381,7 +375,7 @@
                                     "measure.category.other"
                                 ]
                             },
-                            "other_category": {
+                            "otherCategory": {
                                 "type": [
                                     "string",
                                     "null"
@@ -405,7 +399,7 @@
                                     null
                                 ]
                             },
-                            "effective_date": {
+                            "effectiveDate": {
                                 "type": [
                                     "string",
                                     "null"
@@ -416,7 +410,7 @@
                         }
                     }
                 },
-                "company_recalls": {
+                "companyRecalls": {
                     "type": [
                         "array",
                         "null"
@@ -443,21 +437,24 @@
                         }
                     }
                 },
-                "consumer_actions": {
+                "consumerActions": {
                     "type": [
-                        "string",
+                        "array",
                         "null"
                     ],
-                    "description": "Conduites à tenir par le consommateur (source: RappelConso conduites_a_tenir_par_le_consommateur)"
+                    "description": "Conduites à tenir par le consommateur (source: RappelConso conduites_a_tenir_par_le_consommateur)",
+                    "items": {
+                        "type": "string"
+                    }
                 },
-                "compensation_terms": {
+                "compensationTerms": {
                     "type": [
                         "string",
                         "null"
                     ],
                     "description": "Modalités de compensation proposées (source: RappelConso modalites_de_compensation)"
                 },
-                "procedure_end_date": {
+                "procedureEndDate": {
                     "type": [
                         "string",
                         "null"
@@ -484,7 +481,7 @@
                         "type": "string"
                     }
                 },
-                "recall_sheet_url": {
+                "recallSheetUrl": {
                     "type": [
                         "string",
                         "null"
@@ -494,7 +491,7 @@
                 }
             }
         },
-        "additional_information": {
+        "additionalInformation": {
             "type": [
                 "string",
                 "null"
@@ -503,7 +500,7 @@
         }
     },
     "required": [
-        "alert_number",
-        "_metadata"
+        "alertNumber",
+        "metadata"
     ]
 }

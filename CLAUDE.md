@@ -36,6 +36,18 @@ This is a **Spring Boot 4.0.5 / Java 25** REST API project. It uses virtual thre
 
 Base package: `fr.graynaud.alerterappel.api`
 
+### Profiles
+
+- **default** — production settings (`application.properties`)
+- **local** — local development (`application-local.properties`), port 9090
+- **test** — test properties (`src/test/resources/application-test.properties`), used via `@ActiveProfiles("test")`
+
+### JVM arguments
+
+Lucene requires `--add-modules jdk.incubator.vector` for optimal vector performance. This is configured in:
+- `pom.xml` — `spring-boot-maven-plugin` (`jvmArguments`) and `maven-surefire-plugin` (`argLine`)
+- `.run/AlerteRappelApiApplication.run.xml` — IntelliJ run config (`VM_PARAMETERS`)
+
 ### Package structure
 
 ```
@@ -49,8 +61,17 @@ config/
   RestConfig                 — RestClient.Builder bean (JDK HttpClient, 10s connect / 30s read)
   SchedulingConfig           — TaskScheduler bean (SimpleAsyncTaskScheduler, virtual threads)
 
+controller/
+  publics/
+    AlertController          — REST endpoints: search, latest, by alert number, by barcode
+
 service/
-  alert/dto/         — Unified Alert schema (output)
+  alert/
+    dto/             — Unified Alert schema (output): Alert, AlertProduct, AlertCommercialization, etc.
+    AlertService             — In-memory alert cache, barcode index, pagination, delegates search to Lucene
+    AlertRepository          — JSON file persistence with FileLock
+    AlertMerger              — Multi-source merge logic (RAPEX priority)
+    AlertSearchIndex         — Lucene in-memory fulltext search (ByteBuffersDirectory)
   source/
     explore21/       — Abstract layer for Opendatasoft Explore 2.1 sources
       Explore21Source        — interface: getLastDate()
@@ -64,6 +85,13 @@ service/
       dto/                   — RapexNotification (full), RapexNotificationSummary, RapexData, RapexResponse, ...
 ```
 
+### Fulltext search (Lucene)
+
+`AlertSearchIndex` manages an in-memory Lucene index (`ByteBuffersDirectory`) rebuilt on each data reload. Indexed fields:
+- `alertNumber`, `productName` (boosted x2), `brand`, `description`, `barcodes`, `batchNumbers`, `modelReferences`, `riskDescription`, `distributors`
+
+Search uses per-token OR queries with fuzzy matching (edit distance 1 for tokens >= 3 chars, à la Elasticsearch AUTO fuzziness).
+
 ### Domain
 
 The API aggregates product recall data from two external sources into a unified schema:
@@ -72,8 +100,8 @@ The API aggregates product recall data from two external sources into a unified 
 - **RappelConso** — French government open data API via Opendatasoft (`source.rappelconso.*`)
 
 The unified recall object (`docs/schema.json`, documented in `docs/schema.md`) has these top-level sections:
-- `_metadata` — import sources, dates, RappelConso GUID
-- Root fields — `alert_number` (join key, always uppercased), `publication_date`, `risks`, `risk_description`
+- `metadata` — import sources, dates, RappelConso GUID
+- Root fields — `alertNumber` (join key, always uppercased), `publicationDate`, `risks`, `riskDescription`
 - `product` — name, brand, category, barcodes, batch numbers, etc.
 - `commercialization` — origin/alert countries, reacting countries, distributors, sale period
 - `measures` — measures list, company recall links, consumer actions, compensation terms

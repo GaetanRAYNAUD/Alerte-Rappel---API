@@ -9,7 +9,7 @@ Ce document décrit les champs du schéma JSON unifié qui agrège les données 
 
 | Section             | Description                                                         |
 |---------------------|---------------------------------------------------------------------|
-| `_metadata`         | Informations techniques sur l'import (sources, dates, identifiants) |
+| `metadata`          | Informations techniques sur l'import (sources, dates, identifiants) |
 | Champs racine       | Identifiant de l'alerte, dates, risques                             |
 | `product`           | Informations sur le produit rappelé                                 |
 | `commercialization` | Pays, distributeurs, période de vente                               |
@@ -22,19 +22,19 @@ Ce document décrit les champs du schéma JSON unifié qui agrège les données 
 
 ### Identifiants et versioning
 
-**`alert_number`** *(obligatoire)*
+**`alertNumber`** *(obligatoire)*
 Numéro d'alerte commun aux deux sources. C'est la **clé de jointure** entre RAPEX et RappelConso. Toujours normalisé en
 majuscules.
 Exemples : `SR/00842/26`, `SR/00939/26`
 
-**`version_number`**
+**`metadata.sources[].versionNumber`**
 Numéro de version de la fiche. Permet de suivre les mises à jour successives d'un rappel. Uniquement présent pour les
 fiches RappelConso.
 
-**`_metadata.rappelconso_guid`**
-Identifiant unique RappelConso (`rappel_guid`). Complémentaire à `alert_number` pour identifier formellement une fiche.
+**`metadata.rappelconsoGuid`**
+Identifiant unique RappelConso (`rappel_guid`). Complémentaire à `alertNumber` pour identifier formellement une fiche.
 
-**`_metadata.sources[].source_id`**
+**`metadata.sources[].sourceId`**
 Identifiant interne à la source : numéro de notification RAPEX (ex. `10098375`) ou identifiant RappelConso (ex.
 `49410`).
 
@@ -42,7 +42,7 @@ Identifiant interne à la source : numéro de notification RAPEX (ex. `10098375`
 
 ### Dates
 
-**`publication_date`**
+**`publicationDate`**
 Date de publication officielle de l'alerte. Format `date-time`.
 
 ---
@@ -53,17 +53,17 @@ Date de publication officielle de l'alerte. Format `date-time`.
 Tableau des types de risques identifiés sous forme de clés normalisées (RAPEX) ou de valeurs textuelles (RappelConso).
 Exemples : `["riskType.choking"]`, `["riskType.injuries"]`, `["riskType.chemical"]`
 
-**`risk_description`**
+**`riskDescription`**
 Description narrative du risque. C'est le champ le plus riche pour comprendre pourquoi le produit est rappelé.
 
-**`supplementary_risk_description`**
+**`supplementaryRiskDescription`**
 Informations complémentaires sur le risque, uniquement présentes dans les fiches RappelConso.
 
 ---
 
 ### Produit
 
-**`product.specific_name`**
+**`product.specificName`**
 Nom commercial précis du produit rappelé.
 Exemples : `HAPPY LUTINS FARCEURS SAPERLI & POPETTE`, `Grande Panda, 600`
 
@@ -85,39 +85,39 @@ texte libre (`automobiles, motos, scooters`).
 **`product.barcodes`**
 Tableau des codes-barres EAN associés au produit. Permet l'identification directe en point de vente.
 
-**`product.batch_numbers`**
+**`product.batchNumbers`**
 Tableau des numéros de lot concernés. Permet au consommateur de vérifier si son produit est visé.
 
-**`product.model_references`**
+**`product.modelReferences`**
 Références de modèles ou homologations type-approval.
 
 **`product.counterfeit`**
 Booléen indiquant si le produit rappelé est une contrefaçon (source RAPEX uniquement).
 
-**`product.packaging_description`**
+**`product.packagingDescription`**
 Description de l'emballage du produit.
 
-**`product.production_dates`**
+**`product.productionDates`**
 Dates ou plages de production. Peut contenir plusieurs lignes si plusieurs variantes sont concernées.
 
 ---
 
 ### Commercialisation
 
-**`commercialization.origin_country_name`**
+**`commercialization.originCountryName`**
 Nom du pays de fabrication du produit (source RAPEX).
 
-**`commercialization.alert_country_name`**
+**`commercialization.alertCountryName`**
 Nom du pays ayant émis l'alerte (RAPEX) ou `France` pour RappelConso.
 
-**`commercialization.reacting_countries`**
+**`commercialization.reactingCountries`**
 Tableau des codes pays ayant réagi à l'alerte (RAPEX) ou zone géographique de vente (RappelConso).
 Exemple : `["BG", "DE", "HR", "HU", "LU", "PT", "SE", "SI", "SK"]`
 
-**`commercialization.sold_online`**
+**`commercialization.soldOnline`**
 Indique si le produit était vendu en ligne (source RAPEX).
 
-**`commercialization.marketing_start_date`** / **`commercialization.marketing_end_date`**
+**`commercialization.marketingStartDate`** / **`commercialization.marketingEndDate`**
 Période de commercialisation du produit (source RappelConso).
 
 **`commercialization.distributors`**
@@ -127,28 +127,28 @@ Liste textuelle des distributeurs concernés (source RappelConso).
 
 ### Mesures
 
-**`measures.recall_published_online`**
+**`measures.recallPublishedOnline`**
 Booléen indiquant si l'entreprise a publié un rappel sur son site internet (source RAPEX).
 
-**`measures.measures_list`**
+**`measures.measuresList`**
 Tableau des mesures détaillées. Chaque mesure contient :
 
-- `category` : type de mesure (retrait du marché, rappel consommateur, suppression marketplace…)
-- `other_category` : précision textuelle si la catégorie est `other`
+- `category` : type de mesure (retrait du marché, rappel consommateur, suppression marketplace...)
+- `otherCategory` : précision textuelle si la catégorie est `other`
 - `type` : volontaire ou obligatoire
-- `effective_date` : date d'entrée en vigueur
+- `effectiveDate` : date d'entrée en vigueur
 
-**`measures.company_recalls`**
+**`measures.companyRecalls`**
 Liens vers les pages de rappel publiées par l'entreprise elle-même, avec code langue.
 
-**`measures.consumer_actions`**
+**`measures.consumerActions`**
 Consignes à destination du consommateur : que faire du produit, comment obtenir un remboursement ou une réparation (
 source RappelConso).
 
-**`measures.compensation_terms`**
+**`measures.compensationTerms`**
 Modalités de compensation proposées (source RappelConso).
 
-**`measures.procedure_end_date`**
+**`measures.procedureEndDate`**
 Date limite de la procédure de rappel (source RappelConso).
 
 ---
@@ -160,7 +160,7 @@ Tableau d'URLs des photos du produit. Pour RAPEX, construire l'URL à partir de 
 `https://ec.europa.eu/safety-gate-alerts/public/api/notification/image/`. Pour RappelConso, les URLs sont séparées par
 `|` dans la source.
 
-**`media.recall_sheet_url`**
+**`media.recallSheetUrl`**
 Lien vers la fiche officielle du rappel. Pour RAPEX, construire avec le préfixe
 `https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/`. Pour RappelConso, champ
 `lien_vers_la_fiche_rappel`.
@@ -169,7 +169,7 @@ Lien vers la fiche officielle du rappel. Pour RAPEX, construire avec le préfixe
 
 ### Champ complémentaire
 
-**`additional_information`**
+**`additionalInformation`**
 Informations complémentaires publiques (source RappelConso `informations_complementaires_publiques`).
 
 ---
@@ -178,76 +178,76 @@ Informations complémentaires publiques (source RappelConso `informations_comple
 
 ### Champs racine
 
-| Champ unifié                     | RAPEX                           | RappelConso                               |
-|----------------------------------|---------------------------------|-------------------------------------------|
-| `alert_number`                   | `reference`                     | `numero_fiche`                            |
-| `version_number`                 | —                               | `numero_version`                          |
-| `publication_date`               | `publicationDate`               | `date_publication`                        |
-| `risks`                          | `risk.riskType[].key`           | `risques_encourus` (splitter sur virgule) |
-| `risk_description`               | `risk.versions.riskDescription` | `motif_rappel`                            |
-| `supplementary_risk_description` | —                               | `description_complementaire_risque`       |
-| `additional_information`         | —                               | `informations_complementaires_publiques`  |
+| Champ unifié                   | RAPEX                           | RappelConso                               |
+|--------------------------------|---------------------------------|-------------------------------------------|
+| `alertNumber`                  | `reference`                     | `numero_fiche`                            |
+| `publicationDate`              | `publicationDate`               | `date_publication`                        |
+| `risks`                        | `risk.riskType[].key`           | `risques_encourus` (splitter sur virgule) |
+| `riskDescription`              | `risk.versions.riskDescription` | `motif_rappel`                            |
+| `supplementaryRiskDescription` | —                               | `description_complementaire_risque`       |
+| `additionalInformation`        | —                               | `informations_complementaires_publiques`  |
 
-### `_metadata`
+### `metadata`
 
-| Champ unifié                      | RAPEX                            | RappelConso           |
-|-----------------------------------|----------------------------------|-----------------------|
-| `_metadata.sources[].origin`      | `"rapex"`                        | `"rappelconso"`       |
-| `_metadata.sources[].source_id`   | id notification (ex: `10098375`) | id (ex: `49410`)      |
-| `_metadata.sources[].url`         | URL fiche RAPEX                  | URL fiche RappelConso |
-| `_metadata.sources[].import_date` | *(date d'import)*                | *(date d'import)*     |
-| `_metadata.rappelconso_guid`      | —                                | `rappel_guid`         |
+| Champ unifié                         | RAPEX                            | RappelConso           |
+|--------------------------------------|----------------------------------|-----------------------|
+| `metadata.sources[].origin`          | `"rapex"`                        | `"rappelconso"`       |
+| `metadata.sources[].sourceId`        | id notification (ex: `10098375`) | id (ex: `49410`)      |
+| `metadata.sources[].url`             | URL fiche RAPEX                  | URL fiche RappelConso |
+| `metadata.sources[].importDate`      | *(date d'import)*                | *(date d'import)*     |
+| `metadata.sources[].versionNumber`   | —                                | `numero_version`      |
+| `metadata.rappelconsoGuid`           | —                                | `rappel_guid`         |
 
 ### `product`
 
-| Champ unifié                    | RAPEX                                 | RappelConso                    |
-|---------------------------------|---------------------------------------|--------------------------------|
-| `product.specific_name`         | `product.nameSpecific`                | `libelle`                      |
-| `product.type`                  | `product.versions.name`               | —                              |
-| `product.description`           | `product.versions.description`        | `modeles_ou_references`        |
-| `product.brand`                 | `product.brands[0].brand`             | `marque_produit`               |
-| `product.family`                | —                                     | `categorie_produit`            |
-| `product.category`              | `product.productCategory.key`         | `sous_categorie_produit`       |
-| `product.counterfeit`           | `product.isCounterfeit.key`           | —                              |
-| `product.barcodes`              | `product.barcodes[].barcode`          | `identification_produits`      |
-| `product.batch_numbers`         | `product.batchNumbers[].batchNumber`  | `identification_produits`      |
-| `product.model_references`      | `product.modelTypes[].modelType`      | `informations_complementaires` |
-| `product.packaging_description` | `product.versions.packageDescription` | `conditionnements`             |
-| `product.production_dates`      | —                                     | `identification_produits`      |
+| Champ unifié                  | RAPEX                                 | RappelConso                    |
+|-------------------------------|---------------------------------------|--------------------------------|
+| `product.specificName`        | `product.nameSpecific`                | `libelle`                      |
+| `product.type`                | `product.versions.name`               | —                              |
+| `product.description`         | `product.versions.description`        | `modeles_ou_references`        |
+| `product.brand`               | `product.brands[0].brand`             | `marque_produit`               |
+| `product.family`              | —                                     | `categorie_produit`            |
+| `product.category`            | `product.productCategory.key`         | `sous_categorie_produit`       |
+| `product.counterfeit`         | `product.isCounterfeit.key`           | —                              |
+| `product.barcodes`            | `product.barcodes[].barcode`          | `identification_produits`      |
+| `product.batchNumbers`        | `product.batchNumbers[].batchNumber`  | `identification_produits`      |
+| `product.modelReferences`     | `product.modelTypes[].modelType`      | `informations_complementaires` |
+| `product.packagingDescription`| `product.versions.packageDescription` | `conditionnements`             |
+| `product.productionDates`     | —                                     | `identification_produits`      |
 
 ### `commercialization`
 
-| Champ unifié                             | RAPEX                             | RappelConso                      |
-|------------------------------------------|-----------------------------------|----------------------------------|
-| `commercialization.origin_country_name`  | `traceability.countryOrigin.name` | —                                |
-| `commercialization.alert_country_name`   | `country.name`                    | `"France"`                       |
-| `commercialization.reacting_countries`   | `reactingCountries[].country.key` | `zone_geographique_de_vente`     |
-| `commercialization.sold_online`          | `traceability.isSoldOnline.key`   | —                                |
-| `commercialization.marketing_start_date` | —                                 | *(date début commercialisation)* |
-| `commercialization.marketing_end_date`   | —                                 | *(date fin commercialisation)*   |
-| `commercialization.distributors`         | —                                 | *(liste distributeurs)*          |
+| Champ unifié                            | RAPEX                             | RappelConso                      |
+|-----------------------------------------|-----------------------------------|----------------------------------|
+| `commercialization.originCountryName`   | `traceability.countryOrigin.name` | —                                |
+| `commercialization.alertCountryName`    | `country.name`                    | `"France"`                       |
+| `commercialization.reactingCountries`   | `reactingCountries[].country.key` | `zone_geographique_de_vente`     |
+| `commercialization.soldOnline`          | `traceability.isSoldOnline.key`   | —                                |
+| `commercialization.marketingStartDate`  | —                                 | *(date début commercialisation)* |
+| `commercialization.marketingEndDate`    | —                                 | *(date fin commercialisation)*   |
+| `commercialization.distributors`        | —                                 | *(liste distributeurs)*          |
 
 ### `measures`
 
-| Champ unifié                              | RAPEX                                                   | RappelConso                             |
-|-------------------------------------------|---------------------------------------------------------|-----------------------------------------|
-| `measures.recall_published_online`        | `measureTaken.hasPublishedRecallOnline.key`             | —                                       |
-| `measures.measures_list[].category`       | `measureTaken.measures[].measureCategory.key`           | —                                       |
-| `measures.measures_list[].other_category` | `measureTaken.measures[].versions.measureCategoryOther` | —                                       |
-| `measures.measures_list[].type`           | `measureTaken.measures[].measureType.key`               | `nature_juridique_rappel`               |
-| `measures.measures_list[].effective_date` | `measureTaken.measures[].entryIntoForceDate`            | —                                       |
-| `measures.company_recalls[].url`          | `measureTaken.companyRecalls[].url`                     | —                                       |
-| `measures.company_recalls[].language`     | `measureTaken.companyRecalls[].language`                | —                                       |
-| `measures.consumer_actions`               | —                                                       | `conduites_a_tenir_par_le_consommateur` |
-| `measures.compensation_terms`             | —                                                       | `modalites_de_compensation`             |
-| `measures.procedure_end_date`             | —                                                       | `date_de_fin_de_la_procedure_de_rappel` |
+| Champ unifié                             | RAPEX                                                   | RappelConso                             |
+|------------------------------------------|---------------------------------------------------------|-----------------------------------------|
+| `measures.recallPublishedOnline`         | `measureTaken.hasPublishedRecallOnline.key`             | —                                       |
+| `measures.measuresList[].category`       | `measureTaken.measures[].measureCategory.key`           | —                                       |
+| `measures.measuresList[].otherCategory`  | `measureTaken.measures[].versions.measureCategoryOther` | —                                       |
+| `measures.measuresList[].type`           | `measureTaken.measures[].measureType.key`               | `nature_juridique_rappel`               |
+| `measures.measuresList[].effectiveDate`  | `measureTaken.measures[].entryIntoForceDate`            | —                                       |
+| `measures.companyRecalls[].url`          | `measureTaken.companyRecalls[].url`                     | —                                       |
+| `measures.companyRecalls[].language`     | `measureTaken.companyRecalls[].language`                | —                                       |
+| `measures.consumerActions`               | —                                                       | `conduites_a_tenir_par_le_consommateur` |
+| `measures.compensationTerms`             | —                                                       | `modalites_de_compensation`             |
+| `measures.procedureEndDate`              | —                                                       | `date_de_fin_de_la_procedure_de_rappel` |
 
 ### `media`
 
-| Champ unifié             | RAPEX                                 | RappelConso                                |
-|--------------------------|---------------------------------------|--------------------------------------------|
-| `media.photos`           | `product.photos[].id` (+ préfixe URL) | `liens_vers_les_images` (séparés par `\|`) |
-| `media.recall_sheet_url` | `reference` (+ préfixe URL)           | `lien_vers_la_fiche_rappel`                |
+| Champ unifié          | RAPEX                                 | RappelConso                                |
+|-----------------------|---------------------------------------|--------------------------------------------|
+| `media.photos`        | `product.photos[].id` (+ préfixe URL) | `liens_vers_les_images` (séparés par `\|`) |
+| `media.recallSheetUrl`| `reference` (+ préfixe URL)           | `lien_vers_la_fiche_rappel`                |
 
 ---
 
@@ -297,7 +297,7 @@ Chaque token est classifié automatiquement selon ces règles, dans l'ordre de p
 Avant classification, les tokens sont nettoyés :
 
 - Les tokens vides ou blancs sont ignorés
-- Les tokens contenant `|` sont éclatés en sous-tokens (ex. `|3666085407515` → `3666085407515`)
+- Les tokens contenant `|` sont éclatés en sous-tokens (ex. `|3666085407515` -> `3666085407515`)
 - Les tokens `|` isolés sont conservés puis filtrés comme séparateurs
 
 ### Logique de construction des blocs
@@ -320,35 +320,35 @@ Le champ `pattern` indique la structure reconnue :
 | Pattern       | Signification                                                                         |
 |---------------|---------------------------------------------------------------------------------------|
 | `vide`        | Liste de tokens nulle ou vide                                                         |
-| `texte_libre` | Un seul token, ni GTIN ni TYPE_DATE → stocké tel quel dans `lot`                      |
+| `texte_libre` | Un seul token, ni GTIN ni TYPE_DATE -> stocké tel quel dans `lot`                     |
 | `single_bloc` | Un seul bloc extrait, contenant au moins une date ou un type de date                  |
 | `multi_blocs` | Plusieurs blocs extraits (plusieurs produits ou lots dans le même rappel)             |
-| `incomplet`   | Un seul bloc sans date ni type de date, mais avec au moins un token structuré (GTIN…) |
+| `incomplet`   | Un seul bloc sans date ni type de date, mais avec au moins un token structuré (GTIN...) |
 
 ### Exemples
 
 **Bloc complet avec GTIN** :
 `["3271620030518", "07326", "date limite de consommation", "2026-07-12"]`
-→ pattern `single_bloc`, 1 bloc :
+-> pattern `single_bloc`, 1 bloc :
 `gtin=3271620030518, lot=07326, typeDate=date limite de consommation, dateDebut=2026-07-12`
 
 **Plage de dates** :
 `["3760205420719", "tous les lots", "date de durabilité minimale", "2026-04-14", "2026-07-17"]`
-→ pattern `single_bloc`, 1 bloc :
+-> pattern `single_bloc`, 1 bloc :
 `gtin=3760205420719, lot=tous les lots, typeDate=date de durabilité minimale, dateDebut=2026-04-14, dateFin=2026-07-17`
 
 **Multi-blocs** :
 `["3760205423185", "lot A", "date de durabilité minimale", "2026-04-14", "2026-07-17", "3760205423208", "lot B", "date de durabilité minimale", "2026-04-14", "2026-07-17"]`
-→ pattern `multi_blocs`, 2 blocs séparés par le second GTIN
+-> pattern `multi_blocs`, 2 blocs séparés par le second GTIN
 
 **Sans GTIN** :
 `["lot 2302", "date limite de consommation", "2026-05-03"]`
-→ pattern `single_bloc`, 1 bloc : `gtin=null, lot=lot 2302, typeDate=date limite de consommation, dateDebut=2026-05-03`
+-> pattern `single_bloc`, 1 bloc : `gtin=null, lot=lot 2302, typeDate=date limite de consommation, dateDebut=2026-05-03`
 
 **Séparateur pipe** :
 `["d60760286", "date limite de consommation", "2026-03-25", "|", "d60780361", "date limite de consommation", "2026-03-27"]`
-→ pattern `multi_blocs`, 2 blocs séparés par le pipe
+-> pattern `multi_blocs`, 2 blocs séparés par le pipe
 
 **Texte libre** :
 `["14.08.2024 - 14.04.2025"]`
-→ pattern `texte_libre`, 1 bloc : `lot=14.08.2024 - 14.04.2025`
+-> pattern `texte_libre`, 1 bloc : `lot=14.08.2024 - 14.04.2025`
