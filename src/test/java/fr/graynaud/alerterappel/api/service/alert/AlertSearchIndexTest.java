@@ -112,10 +112,10 @@ class AlertSearchIndexTest {
     }
 
     @Test
-    void searchByRiskDescription() {
+    void searchByProductDescription() {
         Map<String, Alert> alerts = new ConcurrentHashMap<>();
-        alerts.put("A1", alertWithRisk("A1", "Risque étouffement par les petites pièces"));
-        alerts.put("A2", alertWithRisk("A2", "Risque de coupure"));
+        alerts.put("A1", alertWithDescription("A1", "Risque étouffement par les petites pièces"));
+        alerts.put("A2", alertWithDescription("A2", "Risque de coupure"));
         this.searchIndex.rebuild(alerts);
 
         SearchResult results = this.searchIndex.search("étouffement", 0, 10);
@@ -182,10 +182,10 @@ class AlertSearchIndexTest {
     @Test
     void productNameBoostRanksHigher() {
         Map<String, Alert> alerts = new ConcurrentHashMap<>();
-        // A1: "poupée" is in the product name
+        // A1: "poupée" is in the product name (boosted x2)
         alerts.put("A1", alert("A1", "Poupée artisanale", "ARTISAN", null, null, null));
-        // A2: "poupée" is only in the risk description
-        alerts.put("A2", alertWithRisk("A2", "Risque lié à une poupée contrefaite"));
+        // A2: "poupée" is only in the product description (boost x0.1)
+        alerts.put("A2", alertWithDescription("A2", "Risque lié à une poupée contrefaite"));
         this.searchIndex.rebuild(alerts);
 
         SearchResult results = this.searchIndex.search("poupée", 0, 10);
@@ -274,9 +274,11 @@ class AlertSearchIndexTest {
                 product, commercialization, null, null, null);
     }
 
-    private static Alert alertWithRisk(String alertNumber, String riskDescription) {
-        AlertMetadata metadata = new AlertMetadata(List.of(), null);
-        return new Alert(metadata, alertNumber, OffsetDateTime.now(), null, riskDescription, null,
+    private static Alert alertWithDescription(String alertNumber, String description) {
+        AlertProduct product = new AlertProduct(null, null, description, null, null, null, null,
                 null, null, null, null, null);
+        AlertMetadata metadata = new AlertMetadata(List.of(), null);
+        return new Alert(metadata, alertNumber, OffsetDateTime.now(), null, null, null,
+                product, null, null, null, null);
     }
 }

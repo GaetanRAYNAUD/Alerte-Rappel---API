@@ -137,7 +137,7 @@ public record RappelConsoRappel(
                                                               : Arrays.stream(this.liensVersLesImages.split("\\|"))
                                                                       .filter(StringUtils::isNotBlank)
                                                                       .toList();
-        AlertMedia media = new AlertMedia(photos, this.lienVersLaFicheRappel);
+        AlertMedia media = new AlertMedia(photos, this.lienVersLaFicheRappel, this.lienVersAffichettePdf);
 
         return new Alert(
                 metadata,

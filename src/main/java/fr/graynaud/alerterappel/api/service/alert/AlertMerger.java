@@ -29,9 +29,11 @@ public class AlertMerger {
         if (hasSingleSourceWithSameOrigin(existing, incoming)) {
             Integer existingVersion = existing.metadata().sources().getFirst().versionNumber();
             Integer incomingVersion = incoming.metadata().sources().getFirst().versionNumber();
+
             if (existingVersion != null && incomingVersion != null) {
                 return incomingVersion >= existingVersion ? incoming : existing;
             }
+
             return incoming;
         }
 
@@ -61,6 +63,7 @@ public class AlertMerger {
         if (existing.metadata() == null || existing.metadata().sources() == null || existing.metadata().sources().size() != 1) {
             return false;
         }
+
         if (incoming.metadata() == null || incoming.metadata().sources() == null || incoming.metadata().sources().isEmpty()) {
             return false;
         }
@@ -151,7 +154,8 @@ public class AlertMerger {
     private AlertMedia mergeMedia(AlertMedia rapex, AlertMedia other) {
         if (rapex == null) return other;
         if (other == null) return rapex;
-        return new AlertMedia(mergeLists(rapex.photos(), other.photos()), ObjectUtils.firstNonNull(other.recallSheetUrl(), rapex.recallSheetUrl()));
+        return new AlertMedia(mergeLists(rapex.photos(), other.photos()), ObjectUtils.firstNonNull(other.recallSheetUrl(), rapex.recallSheetUrl()),
+                ObjectUtils.firstNonNull(other.recallPdfUrl(), rapex.recallPdfUrl()));
     }
 
     private static List<AlertMeasureItem> mergeMeasureItems(List<AlertMeasureItem> primary, List<AlertMeasureItem> secondary) {

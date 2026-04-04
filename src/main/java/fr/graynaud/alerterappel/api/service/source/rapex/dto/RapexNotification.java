@@ -30,6 +30,8 @@ public record RapexNotification(@JsonProperty("id") Long id, @JsonProperty("noti
 
     private static final String PHOTO_URL_PREFIX = "https://ec.europa.eu/safety-gate-alerts/public/api/notification/image/";
 
+    private static final String PDF_URL_PREFIX = "https://ec.europa.eu/safety-gate-alerts/api/download/notification/detail/pdf/";
+
     public Alert toAlert(Map<String, String> translations, String rapexUrl) {
         AlertMetadataSource source = new AlertMetadataSource(RapexService.SOURCE_NAME, this.id, rapexUrl, OffsetDateTime.now(), null);
         AlertMetadata metadata = new AlertMetadata(List.of(source), null);
@@ -122,7 +124,8 @@ public record RapexNotification(@JsonProperty("id") Long id, @JsonProperty("noti
         List<String> photos = this.product != null && this.product.photos() != null ?
                               this.product.photos().stream().map(p -> PHOTO_URL_PREFIX + p.id()).toList() : null;
 
-        return new AlertMedia(photos != null && !photos.isEmpty() ? photos : null, recallSheetUrl);
+        String pdfUrl = this.id != null ? PDF_URL_PREFIX + this.id + "/fr" : null;
+        return new AlertMedia(photos != null && !photos.isEmpty() ? photos : null, recallSheetUrl, pdfUrl);
     }
 
     private RapexProductVersion firstProductVersion() {

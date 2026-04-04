@@ -144,6 +144,56 @@ class IdentificationProduitsParserTest {
     }
 
     @Test
+    void startingWithTypeDateNoGtinNoLot() {
+        IdentificationProduits result = IdentificationProduitsParser.parse(
+                List.of("date limite de consommation", "2026-05-03"), "alimentation");
+        assertEquals("single_bloc", result.pattern());
+        assertEquals(1, result.blocs().size());
+        ProduitIdentifie bloc = result.blocs().getFirst();
+        assertNull(bloc.gtin());
+        assertNull(bloc.lot());
+        assertEquals("date limite de consommation", bloc.typeDate());
+        assertEquals("2026-05-03", bloc.dateDebut());
+    }
+
+    @Test
+    void singleBlocLotOnly() {
+        // Single bloc with only a GTIN and a LOT, no date → detectPattern should return texte_libre or incomplet
+        IdentificationProduits result = IdentificationProduitsParser.parse(
+                List.of("3271620030518", "lot ABC"), "jouets");
+        assertEquals(1, result.blocs().size());
+        ProduitIdentifie bloc = result.blocs().getFirst();
+        assertEquals("3271620030518", bloc.gtin());
+        assertEquals("lot ABC", bloc.lot());
+        assertNull(bloc.typeDate());
+        assertNull(bloc.dateDebut());
+    }
+
+    @Test
+    void lotConcatenationWhenTypeDateAlreadySet() {
+        // GTIN, lot, typeDate, then another LOT → should flush to new bloc
+        IdentificationProduits result = IdentificationProduitsParser.parse(
+                List.of("3271620030518", "lot A", "date limite de consommation", "2026-05-01",
+                        "lot B", "date limite de consommation", "2026-06-01"),
+                "alimentation");
+        assertEquals("multi_blocs", result.pattern());
+        assertEquals(2, result.blocs().size());
+        assertEquals("lot A", result.blocs().get(0).lot());
+        assertEquals("lot B", result.blocs().get(1).lot());
+    }
+
+    @Test
+    void lotAppendedWhenNoTypeDateYet() {
+        // GTIN then two consecutive LOT tokens (no typeDate set yet) → should concatenate
+        IdentificationProduits result = IdentificationProduitsParser.parse(
+                List.of("3271620030518", "lot A", "suite lot", "date limite de consommation", "2026-05-01"),
+                "alimentation");
+        assertEquals("single_bloc", result.pattern());
+        assertEquals(1, result.blocs().size());
+        assertEquals("lot A suite lot", result.blocs().getFirst().lot());
+    }
+
+    @Test
     void pipeColleAuToken() {
         IdentificationProduits result = IdentificationProduitsParser.parse(
                 List.of("|3666085407515", "tous les lots", "non concerné"), "maison");

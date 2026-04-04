@@ -118,8 +118,8 @@ class AlertMergerTest {
 
     @Test
     void crossSourceMergesMedia() {
-        AlertMedia rapexMedia = new AlertMedia(List.of("rapex-photo.jpg"), null);
-        AlertMedia rcMedia = new AlertMedia(List.of("rc-photo.jpg"), "https://rappelconso.fr/fiche/123");
+        AlertMedia rapexMedia = new AlertMedia(List.of("rapex-photo.jpg"), null, null);
+        AlertMedia rcMedia = new AlertMedia(List.of("rc-photo.jpg"), "https://rappelconso.fr/fiche/123", "https://rappelconso.fr/pdf/123");
 
         Alert rapex = alertWithMedia("SR/001/26", "Rapex", rapexMedia);
         Alert rc = alertWithMedia("SR/001/26", "RappelConso", rcMedia);
@@ -198,6 +198,97 @@ class AlertMergerTest {
         // First merge same-origin keeps v3
         Alert result = this.merger.mergeAlerts(rc1, rc2);
         assertEquals(3, result.metadata().sources().getFirst().versionNumber());
+    }
+
+    // --- mergeMetadata: same origin replacement ---
+
+    @Test
+    void crossSourceMergeMetadataReplacesExistingSameOriginWithHigherVersion() {
+        AlertMetadataSource rapex1 = new AlertMetadataSource("Rapex", 1L, null, OffsetDateTime.now(), 1);
+        AlertMetadataSource rapex2 = new AlertMetadataSource("Rapex", 2L, null, OffsetDateTime.now(), 3);
+        AlertMetadataSource rc = new AlertMetadataSource("RappelConso", 10L, null, OffsetDateTime.now(), 1);
+
+        Alert existing = new Alert(new AlertMetadata(List.of(rapex1, rc), null), "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+        Alert incoming = new Alert(new AlertMetadata(List.of(rapex2), null), "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+
+        Alert result = this.merger.mergeAlerts(existing, incoming);
+        // rapex2 should replace rapex1 (same origin, higher version), rc should remain
+        List<AlertMetadataSource> sources = result.metadata().sources();
+        assertEquals(2, sources.size());
+        AlertMetadataSource rapexSource = sources.stream().filter(s -> "Rapex".equals(s.origin())).findFirst().orElseThrow();
+        assertEquals(3, rapexSource.versionNumber());
+        assertEquals(2L, rapexSource.sourceId());
+    }
+
+    @Test
+    void crossSourceMergeMetadataKeepsExistingSameOriginWithHigherVersion() {
+        AlertMetadataSource rapex1 = new AlertMetadataSource("Rapex", 1L, null, OffsetDateTime.now(), 5);
+        AlertMetadataSource rc = new AlertMetadataSource("RappelConso", 10L, null, OffsetDateTime.now(), 1);
+        AlertMetadataSource rapex2 = new AlertMetadataSource("Rapex", 2L, null, OffsetDateTime.now(), 2);
+
+        Alert existing = new Alert(new AlertMetadata(List.of(rapex1, rc), null), "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+        Alert incoming = new Alert(new AlertMetadata(List.of(rapex2), null), "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+
+        Alert result = this.merger.mergeAlerts(existing, incoming);
+        AlertMetadataSource rapexSource = result.metadata().sources().stream().filter(s -> "Rapex".equals(s.origin())).findFirst().orElseThrow();
+        assertEquals(5, rapexSource.versionNumber());
+        assertEquals(1L, rapexSource.sourceId());
+    }
+
+    @Test
+    void crossSourceMergeMetadataNullVersionReplacesExisting() {
+        AlertMetadataSource rapex1 = new AlertMetadataSource("Rapex", 1L, null, OffsetDateTime.now(), null);
+        AlertMetadataSource rc = new AlertMetadataSource("RappelConso", 10L, null, OffsetDateTime.now(), 1);
+        AlertMetadataSource rapex2 = new AlertMetadataSource("Rapex", 2L, null, OffsetDateTime.now(), null);
+
+        Alert existing = new Alert(new AlertMetadata(List.of(rapex1, rc), null), "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+        Alert incoming = new Alert(new AlertMetadata(List.of(rapex2), null), "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+
+        Alert result = this.merger.mergeAlerts(existing, incoming);
+        AlertMetadataSource rapexSource = result.metadata().sources().stream().filter(s -> "Rapex".equals(s.origin())).findFirst().orElseThrow();
+        assertEquals(2L, rapexSource.sourceId());
+    }
+
+    @Test
+    void crossSourceMergeMetadataGuidFromSecondIfFirstNull() {
+        Alert rapex = rapex("SR/001/26", "Toy", 1);
+        AlertMetadata rcMeta = new AlertMetadata(List.of(new AlertMetadataSource("RappelConso", 1L, null, OffsetDateTime.now(), 1)), "guid-xyz");
+        Alert rc = new Alert(rcMeta, "SR/001/26", OffsetDateTime.now(), null, null, null, null, null, null, null, null);
+
+        Alert result = this.merger.mergeAlerts(rapex, rc);
+        assertEquals("guid-xyz", result.metadata().rappelconsoGuid());
+    }
+
+    // --- null sub-objects ---
+
+    @Test
+    void crossSourceNullCommercializationOnOther() {
+        AlertCommercialization rapexComm = new AlertCommercialization("China", "France", null, null, null, null, null);
+        Alert rapex = alertWithCommercialization("SR/001/26", "Rapex", rapexComm);
+        Alert rc = alertWithCommercialization("SR/001/26", "RappelConso", null);
+
+        Alert result = this.merger.mergeAlerts(rapex, rc);
+        assertEquals("China", result.commercialization().originCountryName());
+    }
+
+    @Test
+    void crossSourceNullMeasuresOnOther() {
+        AlertMeasures rapexMeasures = new AlertMeasures(true, null, null, null, null, null);
+        Alert rapex = alertWithMeasures("SR/001/26", "Rapex", rapexMeasures);
+        Alert rc = alertWithMeasures("SR/001/26", "RappelConso", null);
+
+        Alert result = this.merger.mergeAlerts(rapex, rc);
+        assertTrue(result.measures().recallPublishedOnline());
+    }
+
+    @Test
+    void crossSourceNullMediaOnOther() {
+        AlertMedia rapexMedia = new AlertMedia(List.of("photo.jpg"), "https://rapex.eu/sheet", null);
+        Alert rapex = alertWithMedia("SR/001/26", "Rapex", rapexMedia);
+        Alert rc = alertWithMedia("SR/001/26", "RappelConso", null);
+
+        Alert result = this.merger.mergeAlerts(rapex, rc);
+        assertEquals(List.of("photo.jpg"), result.media().photos());
     }
 
     // --- edge cases ---
