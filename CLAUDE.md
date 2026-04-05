@@ -63,15 +63,16 @@ config/
 
 controller/
   publics/
-    AlertController          — REST endpoints: search, latest, by alert number, by barcode
+    AlertController          — REST endpoints: suggest, search, latest, details by alert number, by barcode. Cache-Control on all endpoints.
 
 service/
   alert/
-    dto/             — Unified Alert schema (output): Alert, AlertProduct, AlertCommercialization, etc.
+    dto/             — Unified Alert schema (output): Alert, AlertProduct, AlertCommercialization, SearchSuggestion, etc.
     AlertService             — In-memory alert cache, barcode index, pagination, delegates search to Lucene
     AlertRepository          — JSON file persistence with FileLock
     AlertMerger              — Multi-source merge logic (RAPEX priority)
     AlertSearchIndex         — Lucene in-memory fulltext search (ByteBuffersDirectory)
+    SuggestionIndex          — In-memory n-gram index for search suggestions (1–5 word n-grams)
   source/
     explore21/       — Abstract layer for Opendatasoft Explore 2.1 sources
       Explore21Source        — interface: getLastDate()
@@ -91,6 +92,17 @@ service/
 - `alertNumber`, `productName` (boosted x2), `brand`, `description`, `barcodes`, `batchNumbers`, `modelReferences`, `riskDescription`, `distributors`
 
 Search uses per-token OR queries with fuzzy matching (edit distance 1 for tokens >= 3 chars, à la Elasticsearch AUTO fuzziness).
+
+### Search suggestions
+
+`SuggestionIndex` builds an in-memory index of n-grams (1 to 5 words) extracted from product names, brands, categories, and families. N-grams are normalized (lowercase, no diacritics) and deduplicated with occurrence counts. The index is rebuilt alongside the Lucene index on each data reload. Matching uses `startsWith` on normalized input, results sorted by frequency (most common first), limited to 8 suggestions.
+
+### HTTP caching
+
+`AlertController` sets `Cache-Control` headers on all endpoints:
+- **suggest** — `max-age=1d, public` (static constant)
+- **details / barcode** — `max-age=1d, public` (static constant)
+- **latest** — dynamic `max-age` computed from source cron expressions (`cacheUntilNextCron()`), expires at the next cron execution across all sources
 
 ### Domain
 

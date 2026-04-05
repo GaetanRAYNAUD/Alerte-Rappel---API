@@ -33,7 +33,8 @@ class AlertServiceTest {
         AlertRepository repository = new AlertRepository(dataProperties, jsonMapper);
         AlertMerger merger = new AlertMerger();
         AlertSearchIndex searchIndex = new AlertSearchIndex();
-        this.service = new AlertService(repository, merger, searchIndex);
+        SuggestionIndex suggestionIndex = new SuggestionIndex();
+        this.service = new AlertService(repository, merger, searchIndex, suggestionIndex);
     }
 
     // --- addAlerts ---

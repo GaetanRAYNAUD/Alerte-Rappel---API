@@ -3,6 +3,7 @@ package fr.graynaud.alerterappel.api.service.alert;
 import fr.graynaud.alerterappel.api.controller.dto.PageResponse;
 import fr.graynaud.alerterappel.api.service.alert.dto.Alert;
 import fr.graynaud.alerterappel.api.service.alert.dto.SearchResult;
+import fr.graynaud.alerterappel.api.service.alert.dto.SearchSuggestion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -38,6 +39,8 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
     private final AlertSearchIndex searchIndex;
 
+    private final SuggestionIndex suggestionIndex;
+
     private final WatchService watchService;
 
     private final AtomicBoolean selfWrite = new AtomicBoolean(false);
@@ -48,10 +51,11 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
     private volatile List<Alert> sortedByDate = List.of();
 
-    public AlertService(AlertRepository repository, AlertMerger merger, AlertSearchIndex searchIndex) throws IOException {
+    public AlertService(AlertRepository repository, AlertMerger merger, AlertSearchIndex searchIndex, SuggestionIndex suggestionIndex) throws IOException {
         this.repository = repository;
         this.merger = merger;
         this.searchIndex = searchIndex;
+        this.suggestionIndex = suggestionIndex;
         this.watchService = FileSystems.getDefault().newWatchService();
         this.repository.getPath().getParent().register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY);
     }
@@ -96,6 +100,10 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         return PageResponse.from(this.sortedByDate, page, size);
     }
 
+    public List<SearchSuggestion> suggest(String query) {
+        return this.suggestionIndex.suggest(query);
+    }
+
     public synchronized void addAlerts(List<Alert> alerts) {
         if (CollectionUtils.isEmpty(alerts)) {
             return;
@@ -131,6 +139,7 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
         rebuildBarcodeIndex();
         rebuildSortedByDate();
         rebuildSearchIndex();
+        rebuildSuggestionIndex();
     }
 
     private void rebuildSortedByDate() {
@@ -141,6 +150,10 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
     private void rebuildSearchIndex() {
         this.searchIndex.rebuild(this.alerts);
+    }
+
+    private void rebuildSuggestionIndex() {
+        this.suggestionIndex.rebuild(this.alerts);
     }
 
     private void rebuildBarcodeIndex() {
