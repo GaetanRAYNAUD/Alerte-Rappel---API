@@ -11,7 +11,7 @@
 
   <groupId>fr.graynaud.alerterappel</groupId>
   <artifactId>api</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>Alerte Rappel - API</name>
   <description>Alerte Rappel - API</description>
 
@@ -104,6 +104,7 @@
   </dependencies>
 
   <build>
+    <finalName>Alerte Rappel</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

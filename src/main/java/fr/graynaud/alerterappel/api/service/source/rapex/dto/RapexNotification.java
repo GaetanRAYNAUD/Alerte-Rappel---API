@@ -11,6 +11,7 @@ import fr.graynaud.alerterappel.api.service.alert.dto.AlertMetadata;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertMetadataSource;
 import fr.graynaud.alerterappel.api.service.alert.dto.AlertProduct;
 import fr.graynaud.alerterappel.api.service.source.rapex.RapexService;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -48,7 +49,8 @@ public record RapexNotification(@JsonProperty("id") Long id, @JsonProperty("noti
         AlertMeasures measures = mapMeasures(translations);
         AlertMedia media = mapMedia(rapexUrl);
 
-        return new Alert(metadata, this.reference != null ? this.reference.toUpperCase() : null, this.publicationDate, risks, riskDescription, null,
+        return new Alert(metadata, this.reference != null ? this.reference.toUpperCase() : null,
+                         ObjectUtils.firstNonNull(this.publicationDate, this.modificationDate, this.creationDate), risks, riskDescription, null,
                          alertProduct, commercialization, measures, media, null);
     }
 

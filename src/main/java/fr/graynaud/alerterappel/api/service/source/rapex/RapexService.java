@@ -17,6 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -31,7 +32,7 @@ public class RapexService extends Explore21Service<RapexData> {
 
     public static final String SOURCE_NAME = "Rapex";
 
-    private static final int MAX_PAGE = 100;
+    private static final int MAX_PAGE = 10;
 
     private final RestClient getClient;
 
@@ -105,7 +106,7 @@ public class RapexService extends Explore21Service<RapexData> {
                                                                 .body(RapexNotification.class);
 
             return rapexNotification != null ? rapexNotification.toAlert(translations, rapexUrl) : null;
-        } catch (HttpClientErrorException.NotFound e) {
+        } catch (HttpClientErrorException.NotFound | ResourceAccessException e) {
             this.logger.warn("Notification {} not found, skipping", id);
             return null;
         }

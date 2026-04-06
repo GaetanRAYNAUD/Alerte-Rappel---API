@@ -111,6 +111,10 @@ public class AlertService implements ApplicationListener<ApplicationStartedEvent
 
         int merged = 0;
         for (Alert alert : alerts) {
+            if (alert.publicationDate() == null) {
+                LOGGER.warn("Skipped {} because no publicationDate", alert.alertNumber());
+                continue;
+            }
             Alert existing = this.alerts.get(alert.alertNumber());
             if (existing != null) {
                 this.alerts.put(alert.alertNumber(), this.merger.mergeAlerts(existing, alert));

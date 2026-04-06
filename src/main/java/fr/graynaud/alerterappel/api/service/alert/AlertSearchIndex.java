@@ -192,9 +192,9 @@ public class AlertSearchIndex {
         addStoredField(doc, FIELD_ALERT_NUMBER, alert.alertNumber());
         addTextField(doc, FIELD_ALERT_NUMBER, alert.alertNumber());
 
-        long epochMillis = alert.publicationDate() != null ? alert.publicationDate().toInstant().toEpochMilli() : 0L;
+        long epochMillis = alert.publicationDate().toInstant().toEpochMilli();
         doc.add(new LongPoint(FIELD_PUBLICATION_DATE, epochMillis));
-        doc.add(new FeatureField(FIELD_FEATURES, FIELD_PUBLICATION_DATE, epochMillis));
+        doc.add(new FeatureField(FIELD_FEATURES, FIELD_PUBLICATION_DATE, (float) epochMillis));
 
         if (alert.product() != null) {
             addTextField(doc, FIELD_PRODUCT_NAME, alert.product().specificName());
